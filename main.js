@@ -10,6 +10,7 @@ const camera = new THREE.PerspectiveCamera(
   0.1,
   1000
 );
+
 const raycaster = new THREE.Raycaster();
 const renderer = new THREE.WebGLRenderer({
   antialias: true,
@@ -32,7 +33,8 @@ const mouse = {
   y: 0,
   down: false,
   xPrev: undefined,
-  yPrev: undefined
+  yPrev: undefined,
+  audioTriggerActivated: false
 }
 
 liveGroup.rotation.offset = {
@@ -43,7 +45,7 @@ liveGroup.rotation.offset = {
 function animate() {
   requestAnimationFrame(animate);
   liveGroup.rotation.y += 0.002;    //mouse.x * 0.5;
-  
+
   // update the picking ray with the camera and pointer position
   raycaster.setFromCamera(mouse, camera);
   renderer.render(scene, camera);
@@ -51,10 +53,20 @@ function animate() {
 
 animate();
 
+
 canvasContainer.addEventListener('mousedown', ({ clientX, clientY }) => {
   mouse.down = true;
   mouse.xPrev = clientX;
   mouse.yPrev = clientY;
+});
+
+canvasContainer.addEventListener('click', () => {
+  if (!mouse.audioTriggerActivated) {
+    let audio = new Audio('./audio/space.mp3');
+    audio.loop = true;
+    audio.play();
+    mouse.audioTriggerActivated = !mouse.audioTriggerActivated;
+  }
 });
 
 addEventListener('mousemove', (event) => {
