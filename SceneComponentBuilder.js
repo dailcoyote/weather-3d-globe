@@ -18,7 +18,7 @@ import {
 
 class SceneComponentBuilder {
     static createGlobe(radius = 5, withSegments = 50, heightSegments = 50) {
-        return new Mesh(
+        let globe =  new Mesh(
             new SphereGeometry(radius, withSegments, heightSegments),
             new ShaderMaterial({
                 vertexShader: globeVertexShader,
@@ -32,6 +32,8 @@ class SceneComponentBuilder {
                 }
             })
         );
+        globe.rotation.y = -Math.PI / 2;
+        return globe;
     }
     static createAtmosphere(radius = 5, withSegments = 50, heightSegments = 50) {
         let atmosphere = new Mesh(
