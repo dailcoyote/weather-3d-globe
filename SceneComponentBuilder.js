@@ -1,4 +1,4 @@
-import globeVertexShader from './shaders/globeVertex';
+import globeVertexShader from './shaders/globeVertex.glsl';
 import globeFragmentShader from './shaders/globeFragment.glsl';
 import atmosphereVertexShader from './shaders/atmosphereVertex.glsl';
 import atmosphereFragmentShader from './shaders/atmosphereFragment.glsl';
@@ -21,8 +21,8 @@ class SceneComponentBuilder {
         return new Mesh(
             new SphereGeometry(radius, withSegments, heightSegments),
             new ShaderMaterial({
-                globeVertexShader,
-                globeFragmentShader,
+                vertexShader: globeVertexShader,
+                fragmentShader: globeFragmentShader,
                 uniforms: {
                     globeTexture: {
                         value: new
