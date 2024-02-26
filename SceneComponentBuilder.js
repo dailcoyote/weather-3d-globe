@@ -17,7 +17,7 @@ import {
 } from 'three';
 
 class SceneComponentBuilder {
-    static createGlobe(radius = 5, withSegments = 50, heightSegments) {
+    static createGlobe(radius = 5, withSegments = 50, heightSegments = 50) {
         return new Mesh(
             new SphereGeometry(radius, withSegments, heightSegments),
             new ShaderMaterial({
@@ -33,9 +33,9 @@ class SceneComponentBuilder {
             })
         );
     }
-    static createAtmosphere() {
+    static createAtmosphere(radius = 5, withSegments = 50, heightSegments = 50) {
         let atmosphere = new Mesh(
-            new SphereGeometry(5, 50, 50),
+            new SphereGeometry(radius, withSegments, heightSegments),
             new ShaderMaterial({
                 vertexShader: atmosphereVertexShader,
                 fragmentShader: atmosphereFragmentShader,
@@ -46,13 +46,12 @@ class SceneComponentBuilder {
         atmosphere.scale.set(1.1, 1.1, 1.1);
         return atmosphere;
     }
-    static createStars() {
+    static createStars(starCount = 1000) {
         const starGeometry = new BufferGeometry();
         const starMaterial = new PointsMaterial({
             color: 0xffffff
         })
         const starVertices = new Array();
-        const starCount = 10000;
         for (let i = 0; i < starCount; i++) {
             const x = (Math.random() - 0.5) * 2000;
             const y = (Math.random() - 0.5) * 2000;
@@ -63,7 +62,7 @@ class SceneComponentBuilder {
         starGeometry.setAttribute('position',
             new Float32BufferAttribute(starVertices, 3));
 
-        return Points(
+        return new Points(
             starGeometry, starMaterial
         )
     }
