@@ -34,7 +34,7 @@ const mouse = {
   down: false,
   xPrev: undefined,
   yPrev: undefined,
-  audioTriggerActivated: false
+  sceneTriggerActivated: false
 }
 
 liveGroup.rotation.offset = {
@@ -44,7 +44,9 @@ liveGroup.rotation.offset = {
 
 function animate() {
   requestAnimationFrame(animate);
-  liveGroup.rotation.y += 0.002;    //mouse.x * 0.5;
+  if(mouse.sceneTriggerActivated) {
+    liveGroup.rotation.y += 0.002;    //mouse.x * 0.5;
+  }
 
   // update the picking ray with the camera and pointer position
   raycaster.setFromCamera(mouse, camera);
@@ -61,11 +63,11 @@ canvasContainer.addEventListener('mousedown', ({ clientX, clientY }) => {
 });
 
 canvasContainer.addEventListener('click', () => {
-  if (!mouse.audioTriggerActivated) {
+  if (!mouse.sceneTriggerActivated) {
     let audio = new Audio('./audio/space.mp3');
     audio.loop = true;
     audio.play();
-    mouse.audioTriggerActivated = !mouse.audioTriggerActivated;
+    mouse.sceneTriggerActivated = !mouse.sceneTriggerActivated;
   }
 });
 
