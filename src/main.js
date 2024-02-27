@@ -13,7 +13,7 @@ let camera = new THREE.PerspectiveCamera(
   75,
   innerWidth / innerHeight,
   0.1,
-  isMobile ? 1800 : 1000
+  isMobile ? 2000 : 1250
 );
 
 const raycaster = new THREE.Raycaster();
@@ -32,14 +32,14 @@ const liveGroup = new THREE.Group();
 liveGroup.add(SceneComponentBuilder.createGlobe());
 scene.add(liveGroup);
 
-camera.position.z = isMobile ? 16 : 12;
+camera.position.z = isMobile ? 18 : 12;
 const mouse = {
   x: 0,
   y: 0,
   down: false,
   xPrev: undefined,
   yPrev: undefined,
-  sceneTriggerActivated: false
+  audioActivated: false
 }
 
 liveGroup.rotation.offset = {
@@ -49,8 +49,9 @@ liveGroup.rotation.offset = {
 
 function animate() {
   requestAnimationFrame(animate);
-  if (mouse.sceneTriggerActivated) {
-    liveGroup.rotation.y += 0.0018;    //mouse.x * 0.5;
+
+  if (!mouse.down) {
+    liveGroup.rotation.y += 0.002;    //mouse.x * 0.5; 
   }
 
   // update the picking ray with the camera and pointer position
@@ -65,14 +66,12 @@ canvasContainer.addEventListener('mousedown', ({ clientX, clientY }) => {
   mouse.down = true;
   mouse.xPrev = clientX;
   mouse.yPrev = clientY;
-});
-
-canvasContainer.addEventListener('click', () => {
-  if (!mouse.sceneTriggerActivated) {
+  
+  if (!mouse.audioActivated) {
     let audio = new Audio('./audio/space.mp3');
     audio.loop = true;
     audio.play();
-    mouse.sceneTriggerActivated = !mouse.sceneTriggerActivated;
+    mouse.audioActivated = !mouse.audioActivated;
   }
 });
 
@@ -103,35 +102,35 @@ addEventListener('mouseup', (event) => {
   mouse.down = false;
 });
 
-addEventListener('touchmove', (event) => {
-  event.clientX = event.touches[0].clientX;
-  event.clientY = event.touches[0].clientY;
+// addEventListener('touchmove', (event) => {
+//   event.clientX = event.touches[0].clientX;
+//   event.clientY = event.touches[0].clientY;
 
-  mouse.down = true;
+//   mouse.down = true;
 
-  const offset = canvasContainer.getBoundingClientRect().top;
-  mouse.x = (event.clientX / innerWidth) * 2 - 1
-  mouse.y = -((event.clientY - offset) / innerHeight) * 2 + 1
-  // console.log(mouse.y)
+//   const offset = canvasContainer.getBoundingClientRect().top;
+//   mouse.x = (event.clientX / innerWidth) * 2 - 1
+//   mouse.y = -((event.clientY - offset) / innerHeight) * 2 + 1
+//   // console.log(mouse.y)
 
-  const deltaX = event.clientX - mouse.xPrev;
-  const deltaY = event.clientY - mouse.yPrev;
+//   const deltaX = event.clientX - mouse.xPrev;
+//   const deltaY = event.clientY - mouse.yPrev;
 
-  liveGroup.rotation.offset.x += deltaY * 0.005;
-  liveGroup.rotation.offset.y += deltaX * 0.005;
+//   liveGroup.rotation.offset.x += deltaY * 0.005;
+//   liveGroup.rotation.offset.y += deltaX * 0.005;
 
-  gsap.to(liveGroup.rotation, {
-    y: liveGroup.rotation.offset.y,
-    x: liveGroup.rotation.offset.x,
-    duration: 4
-  });
+//   gsap.to(liveGroup.rotation, {
+//     y: liveGroup.rotation.offset.y,
+//     x: liveGroup.rotation.offset.x,
+//     duration: 4
+//   });
 
-  mouse.xPrev = event.clientX;
-  mouse.yPrev = event.clientY;
-},
-  {
-    passive: false
-  }
-);
+//   mouse.xPrev = event.clientX;
+//   mouse.yPrev = event.clientY;
+// },
+//   {
+//     passive: false
+//   }
+// );
 
 
