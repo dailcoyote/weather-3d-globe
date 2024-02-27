@@ -4,7 +4,7 @@ import SceneComponentBuilder from './SceneComponentBuilder';
 
 const canvasContainer = document.querySelector('#canvasContainer');
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(
+let camera = new THREE.PerspectiveCamera(
   75,
   canvasContainer.offsetWidth / canvasContainer.offsetHeight,
   0.1,
@@ -17,7 +17,7 @@ const renderer = new THREE.WebGLRenderer({
   canvas: canvasContainer
 });
 
-renderer.setSize(innerWidth, innerHeight);
+renderer.setSize(canvasContainer.offsetWidth, canvasContainer.offsetHeight);
 renderer.setPixelRatio(window.devicePixelRatio);
 document.body.appendChild(renderer.domElement);
 
@@ -27,7 +27,7 @@ const liveGroup = new THREE.Group();
 liveGroup.add(SceneComponentBuilder.createGlobe());
 scene.add(liveGroup);
 
-camera.position.z = 12;
+camera.position.z = 15;
 const mouse = {
   x: 0,
   y: 0,
@@ -44,8 +44,8 @@ liveGroup.rotation.offset = {
 
 function animate() {
   requestAnimationFrame(animate);
-  if(mouse.sceneTriggerActivated) {
-    liveGroup.rotation.y += 0.002;    //mouse.x * 0.5;
+  if (mouse.sceneTriggerActivated) {
+    liveGroup.rotation.y += 0.0018;    //mouse.x * 0.5;
   }
 
   // update the picking ray with the camera and pointer position
