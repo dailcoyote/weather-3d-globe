@@ -27,7 +27,7 @@ class SceneComponentBuilder {
                     globeTexture: {
                         value: new
                             TextureLoader()
-                            .load('./textures/earth_uvmap.jpeg')
+                            .load('./textures/earth_night_uvmap.jpg')
                     }
                 }
             })
