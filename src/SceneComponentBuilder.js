@@ -32,6 +32,7 @@ class SceneComponentBuilder {
                 }
             })
         );
+        globe.name = 'globe';
         globe.rotation.y = -Math.PI / 2;
         return globe;
     }
@@ -45,6 +46,7 @@ class SceneComponentBuilder {
                 side: BackSide
             })
         );
+        atmosphere.name = 'atmos';
         atmosphere.scale.set(1.1, 1.1, 1.1);
         return atmosphere;
     }
