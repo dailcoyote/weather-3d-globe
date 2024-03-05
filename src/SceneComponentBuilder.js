@@ -22,7 +22,7 @@ const utils = {
         let phi = Math.acos(2 * Math.random() - 1);
         return {
             dx: 0 + (radius * Math.sin(phi) * Math.cos(theta)),
-            dy: -(100 + (radius * Math.sin(phi) * Math.sin(theta))),
+            dy: 0 + (radius * Math.sin(phi) * Math.sin(theta)),
             dz: -(100 + (radius * Math.cos(phi)))
         };
     }

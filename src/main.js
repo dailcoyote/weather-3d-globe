@@ -2,18 +2,21 @@ import * as THREE from 'three';
 import gsap from "gsap";
 import SceneComponentBuilder from './SceneComponentBuilder';
 
-function isMobile() {
+let isMobile = (function () {
   const regex = /Mobi|Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i;
   return regex.test(navigator.userAgent);
-}
+})()
 
 const canvasContainer = document.querySelector('#canvasContainer');
 const scene = new THREE.Scene();
+const audio = new Audio('./audio/space.mp3');
+audio.loop = true;
+
 let camera = new THREE.PerspectiveCamera(
   75,
   innerWidth / innerHeight,
   0.1,
-  isMobile ? 2000 : 1250
+  2000
 );
 
 const raycaster = new THREE.Raycaster();
@@ -48,7 +51,7 @@ const liveGroup = new THREE.Group();
 liveGroup.add(SceneComponentBuilder.createGlobe(earthTexture));
 scene.add(liveGroup);
 
-camera.position.z = isMobile ? 18 : 12;
+camera.position.z = isMobile ? 20 : 15;
 const mouse = {
   x: 0,
   y: 0,
@@ -63,6 +66,12 @@ liveGroup.rotation.offset = {
   y: 0
 }
 
+function updateCamera() {
+  // update the picking ray with the camera and pointer position
+  raycaster.setFromCamera(mouse, camera);
+  renderer.render(scene, camera);
+}
+
 function animate() {
   requestAnimationFrame(animate);
 
@@ -70,13 +79,10 @@ function animate() {
     liveGroup.rotation.y += 0.002;    //mouse.x * 0.5; 
   }
 
-  // update the picking ray with the camera and pointer position
-  raycaster.setFromCamera(mouse, camera);
-  renderer.render(scene, camera);
+  updateCamera();
 };
 
 animate();
-
 
 canvasContainer.addEventListener('mousedown', ({ clientX, clientY }) => {
   mouse.down = true;
@@ -84,10 +90,16 @@ canvasContainer.addEventListener('mousedown', ({ clientX, clientY }) => {
   mouse.yPrev = clientY;
 
   if (!mouse.audioActivated) {
-    let audio = new Audio('./audio/space.mp3');
-    audio.loop = true;
     audio.play();
     mouse.audioActivated = !mouse.audioActivated;
+  }
+});
+
+addEventListener("wheel", (event) => {
+  let deltaY = event.deltaY / 1000;
+  let offsetY = camera.position.z + deltaY;
+  if (offsetY >= 12 && offsetY <= 36) {
+    camera.position.z = offsetY;
   }
 });
 
