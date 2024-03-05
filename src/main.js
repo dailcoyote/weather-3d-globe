@@ -41,8 +41,8 @@ const blueStarTexture =
 const RED_STARS_COUNT = 250;
 const BLUE_STARS_COUNT = 500;
 
-scene.add(SceneComponentBuilder.createUniverseStars(redStarTexture, 10, RED_STARS_COUNT));
-scene.add(SceneComponentBuilder.createUniverseStars(blueStarTexture, 5, BLUE_STARS_COUNT));
+scene.add(SceneComponentBuilder.createUniverseStars(redStarTexture, 8, RED_STARS_COUNT));
+scene.add(SceneComponentBuilder.createUniverseStars(blueStarTexture, 4, BLUE_STARS_COUNT));
 scene.add(SceneComponentBuilder.createAtmosphere());
 const liveGroup = new THREE.Group();
 liveGroup.add(SceneComponentBuilder.createGlobe(earthTexture));
