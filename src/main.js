@@ -13,7 +13,7 @@ const audio = new Audio('./audio/space.mp3');
 audio.loop = true;
 
 let camera = new THREE.PerspectiveCamera(
-  75,
+  85,
   innerWidth / innerHeight,
   0.1,
   2000
@@ -51,7 +51,7 @@ const liveGroup = new THREE.Group();
 liveGroup.add(SceneComponentBuilder.createGlobe(earthTexture));
 scene.add(liveGroup);
 
-camera.position.z = isMobile ? 20 : 15;
+camera.position.z = isMobile ? 20 : 16;
 const mouse = {
   x: 0,
   y: 0,
@@ -84,81 +84,115 @@ function animate() {
 
 animate();
 
-canvasContainer.addEventListener('mousedown', ({ clientX, clientY }) => {
-  mouse.down = true;
-  mouse.xPrev = clientX;
-  mouse.yPrev = clientY;
+/*
+    D E S K T O P   L I S T E N E R S
+*/
 
-  if (!mouse.audioActivated) {
-    audio.play();
-    mouse.audioActivated = !mouse.audioActivated;
-  }
-});
+if (!isMobile) {
+  canvasContainer.addEventListener('mousedown', ({ clientX, clientY }) => {
+    mouse.down = true;
+    mouse.xPrev = clientX;
+    mouse.yPrev = clientY;
 
-addEventListener("wheel", (event) => {
-  let deltaY = event.deltaY / 1000;
-  let offsetY = camera.position.z + deltaY;
-  if (offsetY >= 12 && offsetY <= 36) {
-    camera.position.z = offsetY;
-  }
-});
+    if (!mouse.audioActivated) {
+      audio.play();
+      mouse.audioActivated = !mouse.audioActivated;
+    }
+  });
 
-addEventListener('mousemove', (event) => {
-  mouse.x = (event.clientX / innerWidth) * 2 - 1
-  mouse.y = -(event.clientY / innerHeight) * 2 + 1
+  addEventListener("wheel", (event) => {
+    let deltaY = event.deltaY / 1000;
+    let offsetY = camera.position.z + deltaY;
+    if (offsetY >= 12 && offsetY <= 36) {
+      camera.position.z = offsetY;
+    }
+  });
 
-  if (mouse.down) {
-    event.preventDefault();
-    const deltaX = event.clientX - mouse.xPrev;
-    const deltaY = event.clientY - mouse.yPrev;
+  addEventListener('mousemove', (event) => {
+    if (innerWidth >= 1280) {
+      mouse.x = ((event.clientX - innerWidth / 2) / (innerWidth / 2)) * 2 - 1;
+      mouse.y = -(event.clientX / innerHeight) * 2 + 1;
+    } else {
+      const offset = canvasContainer.getBoundingClientRect().top;
+      mouse.x = (event.clientX / innerWidth) * 2 - 1
+      mouse.y = -((event.clientY - offset) / innerHeight) * 2 + 1
+    }
 
-    liveGroup.rotation.offset.x += deltaY * 0.005;
-    liveGroup.rotation.offset.y += deltaX * 0.005;
+    if (mouse.down) {
+      event.preventDefault();
+      const deltaX = event.clientX - mouse.xPrev;
+      const deltaY = event.clientY - mouse.yPrev;
 
-    gsap.to(liveGroup.rotation, {
-      y: liveGroup.rotation.offset.y,
-      x: liveGroup.rotation.offset.x,
-      duration: 2
-    });
+      liveGroup.rotation.offset.x += deltaY * 0.005;
+      liveGroup.rotation.offset.y += deltaX * 0.005;
 
-    mouse.xPrev = event.clientX;
-    mouse.yPrev = event.clientY;
-  }
-});
+      gsap.to(liveGroup.rotation, {
+        y: liveGroup.rotation.offset.y,
+        x: liveGroup.rotation.offset.x,
+        duration: 2
+      });
 
-addEventListener('mouseup', (event) => {
-  mouse.down = false;
-});
+      mouse.xPrev = event.clientX;
+      mouse.yPrev = event.clientY;
+    }
+  });
 
-// addEventListener('touchmove', (event) => {
-//   event.clientX = event.touches[0].clientX;
-//   event.clientY = event.touches[0].clientY;
+  addEventListener('mouseup', (event) => {
+    mouse.down = false;
+  });
+}
 
-//   mouse.down = true;
+/*
+    M O B I L E   L I S T E N E R S
+*/
 
-//   const offset = canvasContainer.getBoundingClientRect().top;
-//   mouse.x = (event.clientX / innerWidth) * 2 - 1
-//   mouse.y = -((event.clientY - offset) / innerHeight) * 2 + 1
-//   // console.log(mouse.y)
+if (isMobile) {
+  canvasContainer.addEventListener('touchstart', (event) => {
+    event.clientX = event.touches[0].clientX;
+    event.clientY = event.touches[0].clientY;
 
-//   const deltaX = event.clientX - mouse.xPrev;
-//   const deltaY = event.clientY - mouse.yPrev;
+    let globeObject3D = liveGroup.getObjectByName('globe');
+    const doesIntersect = raycaster.intersectObject(globeObject3D, true);
 
-//   liveGroup.rotation.offset.x += deltaY * 0.005;
-//   liveGroup.rotation.offset.y += deltaX * 0.005;
+    if (doesIntersect.length > 0) {
+      mouse.down = true;
+      mouse.xPrev = event.clientX;
+      mouse.yPrev = event.clientY;
+    }
+  });
 
-//   gsap.to(liveGroup.rotation, {
-//     y: liveGroup.rotation.offset.y,
-//     x: liveGroup.rotation.offset.x,
-//     duration: 4
-//   });
+  addEventListener('touchmove', (event) => {
+    event.clientX = event.touches[0].clientX;
+    event.clientY = event.touches[0].clientY;
 
-//   mouse.xPrev = event.clientX;
-//   mouse.yPrev = event.clientY;
-// },
-//   {
-//     passive: false
-//   }
-// );
+    if (mouse.down) {
+      const offset = canvasContainer.getBoundingClientRect().top;
+      mouse.x = (event.clientX / innerWidth) * 2 - 1
+      mouse.y = -((event.clientY - offset) / innerHeight) * 2 + 1
+
+      event.preventDefault();
+      const deltaX = event.clientX - mouse.xPrev;
+      const deltaY = event.clientY - mouse.yPrev;
+
+      liveGroup.rotation.offset.x += deltaY * 0.005;
+      liveGroup.rotation.offset.y += deltaX * 0.005;
+
+      gsap.to(liveGroup.rotation, {
+        y: liveGroup.rotation.offset.y,
+        x: liveGroup.rotation.offset.x,
+        duration: 2.5
+      });
+    }
+  },
+    {
+      passive: false
+    }
+  );
+
+  addEventListener('touchend', (event) => {
+    // console.log("touch end", mouse)
+    mouse.down = false;
+  });
+}
 
 
