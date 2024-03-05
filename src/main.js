@@ -66,20 +66,29 @@ liveGroup.rotation.offset = {
   y: 0
 }
 
-function updateCamera() {
+function updateFrame() {
   // update the picking ray with the camera and pointer position
   raycaster.setFromCamera(mouse, camera);
+
+  document.getElementById("canvasContainer").style.cursor =
+    raycaster.intersectObject(liveGroup.getObjectByName('globe'), true)
+      .length > 0
+      ? 'grab'
+      : 'default';
+
   renderer.render(scene, camera);
 }
 
 function animate() {
-  requestAnimationFrame(animate);
+  renderer.render(scene, camera);
 
   if (!mouse.down) {
     liveGroup.rotation.y += 0.002;    //mouse.x * 0.5; 
   }
 
-  updateCamera();
+
+  updateFrame();
+  requestAnimationFrame(animate);
 };
 
 animate();
@@ -88,18 +97,21 @@ animate();
     D E S K T O P   L I S T E N E R S
 */
 
-if (!isMobile) {
-  canvasContainer.addEventListener('mousedown', ({ clientX, clientY }) => {
+canvasContainer.addEventListener('mousedown', (event) => {
+  if (!isMobile) {
+    let { clientX, clientY } = event;
     mouse.down = true;
     mouse.xPrev = clientX;
     mouse.yPrev = clientY;
+  }
 
-    if (!mouse.audioActivated) {
-      audio.play();
-      mouse.audioActivated = !mouse.audioActivated;
-    }
-  });
+  if (!mouse.audioActivated) {
+    audio.play();
+    mouse.audioActivated = !mouse.audioActivated;
+  }
+});
 
+if (!isMobile) {
   addEventListener("wheel", (event) => {
     let deltaY = event.deltaY / 1000;
     let offsetY = camera.position.z + deltaY;
@@ -109,22 +121,25 @@ if (!isMobile) {
   });
 
   addEventListener('mousemove', (event) => {
-    if (innerWidth >= 1280) {
-      mouse.x = ((event.clientX - innerWidth / 2) / (innerWidth / 2)) * 2 - 1;
-      mouse.y = -(event.clientX / innerHeight) * 2 + 1;
-    } else {
-      const offset = canvasContainer.getBoundingClientRect().top;
-      mouse.x = (event.clientX / innerWidth) * 2 - 1
-      mouse.y = -((event.clientY - offset) / innerHeight) * 2 + 1
-    }
+    mouse.x = (event.clientX / innerWidth) * 2 - 1
+    mouse.y = -(event.clientY / innerHeight) * 2 + 1
+
+    // if (innerWidth >= 1280) {
+    //   mouse.x = ((event.clientX - innerWidth / 2) / (innerWidth / 2)) * 2 - 1;
+    //   mouse.y = -(event.clientX / innerHeight) * 2 + 1;
+    // } else {
+    //   const offset = canvasContainer.getBoundingClientRect().top;
+    //   mouse.x = (event.clientX / innerWidth) * 2 - 1
+    //   mouse.y = -((event.clientY - offset) / innerHeight) * 2 + 1
+    // }
 
     if (mouse.down) {
       event.preventDefault();
       const deltaX = event.clientX - mouse.xPrev;
       const deltaY = event.clientY - mouse.yPrev;
 
-      liveGroup.rotation.offset.x += deltaY * 0.005;
-      liveGroup.rotation.offset.y += deltaX * 0.005;
+      liveGroup.rotation.offset.x += deltaY * 0.006;
+      liveGroup.rotation.offset.y += deltaX * 0.006;
 
       gsap.to(liveGroup.rotation, {
         y: liveGroup.rotation.offset.y,
@@ -151,14 +166,9 @@ if (isMobile) {
     event.clientX = event.touches[0].clientX;
     event.clientY = event.touches[0].clientY;
 
-    let globeObject3D = liveGroup.getObjectByName('globe');
-    const doesIntersect = raycaster.intersectObject(globeObject3D, true);
-
-    if (doesIntersect.length > 0) {
-      mouse.down = true;
-      mouse.xPrev = event.clientX;
-      mouse.yPrev = event.clientY;
-    }
+    mouse.down = true;
+    mouse.xPrev = event.clientX;
+    mouse.yPrev = event.clientY;
   });
 
   addEventListener('touchmove', (event) => {
@@ -166,16 +176,16 @@ if (isMobile) {
     event.clientY = event.touches[0].clientY;
 
     if (mouse.down) {
+      event.preventDefault();
       const offset = canvasContainer.getBoundingClientRect().top;
       mouse.x = (event.clientX / innerWidth) * 2 - 1
       mouse.y = -((event.clientY - offset) / innerHeight) * 2 + 1
 
-      event.preventDefault();
       const deltaX = event.clientX - mouse.xPrev;
       const deltaY = event.clientY - mouse.yPrev;
 
-      liveGroup.rotation.offset.x += deltaY * 0.005;
-      liveGroup.rotation.offset.y += deltaX * 0.005;
+      liveGroup.rotation.offset.x += deltaY * 0.002;
+      liveGroup.rotation.offset.y += deltaX * 0.002;
 
       gsap.to(liveGroup.rotation, {
         y: liveGroup.rotation.offset.y,
@@ -190,7 +200,6 @@ if (isMobile) {
   );
 
   addEventListener('touchend', (event) => {
-    // console.log("touch end", mouse)
     mouse.down = false;
   });
 }
