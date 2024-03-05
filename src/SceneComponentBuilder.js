@@ -9,25 +9,35 @@ import {
     BufferGeometry,
     ShaderMaterial,
     PointsMaterial,
-    TextureLoader,
     Float32BufferAttribute,
     Points,
     AdditiveBlending,
-    BackSide
+    BackSide,
+    MathUtils
 } from 'three';
 
+const utils = {
+    randomPointSphere(radius) {
+        let theta = 2 * Math.PI * Math.random();
+        let phi = Math.acos(2 * Math.random() - 1);
+        return {
+            dx: 0 + (radius * Math.sin(phi) * Math.cos(theta)),
+            dy: 0 + (radius * Math.sin(phi) * Math.sin(theta)),
+            dz: -(0 + (radius * Math.cos(phi)))
+        };
+    }
+}
+
 class SceneComponentBuilder {
-    static createGlobe(radius = 5, withSegments = 50, heightSegments = 50) {
-        let globe =  new Mesh(
+    static createGlobe(texture, radius = 5, withSegments = 50, heightSegments = 50) {
+        let globe = new Mesh(
             new SphereGeometry(radius, withSegments, heightSegments),
             new ShaderMaterial({
                 vertexShader: globeVertexShader,
                 fragmentShader: globeFragmentShader,
                 uniforms: {
                     globeTexture: {
-                        value: new
-                            TextureLoader()
-                            .load('./textures/earth_dark_texture.jpg')
+                        value: texture
                     }
                 }
             })
@@ -50,17 +60,19 @@ class SceneComponentBuilder {
         atmosphere.scale.set(1.1, 1.1, 1.1);
         return atmosphere;
     }
-    static createStars(starCount = 1000) {
+    static createUniverseStars(texture, size, total) {
         const starGeometry = new BufferGeometry();
         const starMaterial = new PointsMaterial({
-            color: 0xffffff
-        })
+            size,
+            map: texture,
+            blending: AdditiveBlending
+        });
+
         const starVertices = new Array();
-        for (let i = 0; i < starCount; i++) {
-            const x = (Math.random() - 0.5) * 2000;
-            const y = (Math.random() - 0.5) * 2000;
-            const z = -Math.random() * 2000;
-            starVertices.push(x, y, z);
+        for (let index = 0; index < total; index++) {
+            let radius = MathUtils.randInt(320, 160);
+            let particles = utils.randomPointSphere(radius);
+            starVertices.push(particles.dx, particles.dy, particles.dz);
         }
 
         starGeometry.setAttribute('position',
@@ -69,6 +81,7 @@ class SceneComponentBuilder {
         return new Points(
             starGeometry, starMaterial
         )
+
     }
 }
 

@@ -26,10 +26,26 @@ renderer.setSize(innerWidth, innerHeight);
 renderer.setPixelRatio(window.devicePixelRatio);
 document.body.appendChild(renderer.domElement);
 
-scene.add(SceneComponentBuilder.createStars());
+const earthTexture = new THREE
+  .TextureLoader()
+  .load('./textures/earth_dark_texture.jpg');
+const redStarTexture =
+  new THREE
+    .TextureLoader()
+    .load('./textures/red_star.png');
+const blueStarTexture =
+  new THREE
+    .TextureLoader()
+    .load('./textures/blue_star.png');
+
+const RED_STARS_COUNT = 250;
+const BLUE_STARS_COUNT = 500;
+
+scene.add(SceneComponentBuilder.createUniverseStars(redStarTexture, 10, RED_STARS_COUNT));
+scene.add(SceneComponentBuilder.createUniverseStars(blueStarTexture, 5, BLUE_STARS_COUNT));
 scene.add(SceneComponentBuilder.createAtmosphere());
 const liveGroup = new THREE.Group();
-liveGroup.add(SceneComponentBuilder.createGlobe());
+liveGroup.add(SceneComponentBuilder.createGlobe(earthTexture));
 scene.add(liveGroup);
 
 camera.position.z = isMobile ? 18 : 12;
@@ -66,7 +82,7 @@ canvasContainer.addEventListener('mousedown', ({ clientX, clientY }) => {
   mouse.down = true;
   mouse.xPrev = clientX;
   mouse.yPrev = clientY;
-  
+
   if (!mouse.audioActivated) {
     let audio = new Audio('./audio/space.mp3');
     audio.loop = true;
