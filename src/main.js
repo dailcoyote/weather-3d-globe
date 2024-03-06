@@ -29,6 +29,9 @@ renderer.setSize(innerWidth, innerHeight);
 renderer.setPixelRatio(window.devicePixelRatio);
 document.body.appendChild(renderer.domElement);
 
+const galaxyTexture = new THREE
+  .TextureLoader()
+  .load('./textures/galaxy.jpg');
 const earthTexture = new THREE
   .TextureLoader()
   .load('./textures/earth_dark_texture.jpg');
@@ -41,8 +44,10 @@ const blueStarTexture =
     .TextureLoader()
     .load('./textures/blue_star.png');
 
-const RED_STARS_COUNT = 250;
-const BLUE_STARS_COUNT = 500;
+const RED_STARS_COUNT = 100;
+const BLUE_STARS_COUNT = 50;
+
+scene.background = galaxyTexture;
 
 scene.add(SceneComponentBuilder.createUniverseStars(redStarTexture, 8, RED_STARS_COUNT));
 scene.add(SceneComponentBuilder.createUniverseStars(blueStarTexture, 4, BLUE_STARS_COUNT));
@@ -190,7 +195,7 @@ if (isMobile) {
       gsap.to(liveGroup.rotation, {
         y: liveGroup.rotation.offset.y,
         x: liveGroup.rotation.offset.x,
-        duration: 2.5
+        duration: 1.5
       });
     }
   },
