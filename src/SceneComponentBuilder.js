@@ -25,6 +25,9 @@ class SceneComponentBuilder {
                 uniforms: {
                     globeTexture: {
                         value: texture
+                    },
+                    colorSpectrum: {
+                        value: [0.3, 0.6, 1.0]
                     }
                 }
             })

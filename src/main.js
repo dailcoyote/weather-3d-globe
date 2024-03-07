@@ -72,11 +72,14 @@ function updateFrame() {
   // update the picking ray with the camera and pointer position
   raycaster.setFromCamera(mouse, camera);
 
-  document.getElementById("canvasContainer").style.cursor =
-    raycaster.intersectObject(liveGroup.getObjectByName('globe'), true)
-      .length > 0
-      ? 'grab'
-      : 'default';
+  let earth3dObject = liveGroup.getObjectByName('globe');
+  let doesIntersected = raycaster.intersectObject(earth3dObject).length > 0;
+
+  if (doesIntersected) {
+    document.getElementById("canvasContainer").style.cursor ='grab';
+  } else {
+    document.getElementById("canvasContainer").style.cursor ='default';
+  }
 
   renderer.render(scene, camera);
 }
