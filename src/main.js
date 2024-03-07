@@ -31,7 +31,8 @@ const mouse = {
   down: false,
   xPrev: undefined,
   yPrev: undefined,
-  audioActivated: false
+  audioActivated: false,
+  cursorGrabActivated: false
 };
 
 liveGroup.rotation.offset = {
@@ -76,10 +77,14 @@ function updateFrame() {
   let doesIntersected = raycaster.intersectObject(earth3dObject).length > 0;
 
   if (doesIntersected) {
-    document.getElementById("canvasContainer").style.cursor ='grab';
-  } else {
-    document.getElementById("canvasContainer").style.cursor ='default';
+    mouse.cursorGrabActivated = true;
   }
+  else if (!doesIntersected && !mouse.down) {
+    mouse.cursorGrabActivated = false;
+  }
+
+  document.getElementById("canvasContainer").style.cursor =
+    mouse.cursorGrabActivated ? 'grab' : 'default';
 
   renderer.render(scene, camera);
 }
