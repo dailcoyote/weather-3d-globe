@@ -110,9 +110,12 @@ animate();
 canvasContainer.addEventListener('mousedown', (event) => {
   if (!isMobile) {
     let { clientX, clientY } = event;
-    mouse.down = true;
     mouse.xPrev = clientX;
     mouse.yPrev = clientY;
+
+    if (mouse.cursorGrabActivated) {
+      mouse.down = true;
+    }
   }
 
   if (!mouse.audioActivated) {
