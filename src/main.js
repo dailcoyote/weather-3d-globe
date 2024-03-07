@@ -54,8 +54,8 @@ const blueStarTexture =
     .TextureLoader()
     .load('./textures/blue_star.png');
 
-const RED_STARS_COUNT = 1500;
-const BLUE_STARS_COUNT = 2000;
+const RED_STARS_COUNT = isMobile ? 300 : 1500;
+const BLUE_STARS_COUNT = isMobile ? 600 : 2100;
 
 scene.add(SceneComponentBuilder.createUniverseStars(redStarTexture, 10, RED_STARS_COUNT));
 scene.add(SceneComponentBuilder.createUniverseStars(blueStarTexture, 8, BLUE_STARS_COUNT));
