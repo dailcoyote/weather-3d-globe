@@ -12,21 +12,8 @@ import {
     Float32BufferAttribute,
     Points,
     AdditiveBlending,
-    BackSide,
-    MathUtils
+    BackSide
 } from 'three';
-
-const utils = {
-    randomPointSphere(radius) {
-        let theta = 2 * Math.PI * Math.random();
-        let phi = Math.acos(2 * Math.random() - 1);
-        return {
-            dx: 0 + (radius * Math.sin(phi) * Math.cos(theta)),
-            dy: 0 + (radius * Math.sin(phi) * Math.sin(theta)),
-            dz: -(100 + (radius * Math.cos(phi)))
-        };
-    }
-}
 
 class SceneComponentBuilder {
     static createGlobe(texture, radius = 5, withSegments = 50, heightSegments = 50) {
@@ -60,7 +47,7 @@ class SceneComponentBuilder {
         atmosphere.scale.set(1.1, 1.1, 1.1);
         return atmosphere;
     }
-    static createUniverseStars(texture, size, total) {
+    static createUniverseStars(texture, size, total = 1000) {
         const starGeometry = new BufferGeometry();
         const starMaterial = new PointsMaterial({
             size,
@@ -69,10 +56,14 @@ class SceneComponentBuilder {
         });
 
         const starVertices = new Array();
+        const minDistance = 400;
+        const maxDistance = 2000;
+
         for (let index = 0; index < total; index++) {
-            let radius = MathUtils.randInt(320, 160);
-            let particles = utils.randomPointSphere(radius);
-            starVertices.push(particles.dx, particles.dy, particles.dz);
+            const dx = (Math.random() - 0.5) * maxDistance;
+            const dy = (Math.random() - 0.5) * maxDistance;
+            const dz = -(Math.floor(Math.random() * (maxDistance - minDistance + 1)) + minDistance);
+            starVertices.push(dx, dy, dz);
         }
 
         starGeometry.setAttribute('position',

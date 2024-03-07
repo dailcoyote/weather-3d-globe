@@ -24,17 +24,26 @@ const renderer = new THREE.WebGLRenderer({
   antialias: true,
   canvas: canvasContainer
 });
+const liveGroup = new THREE.Group();
+const mouse = {
+  x: 0,
+  y: 0,
+  down: false,
+  xPrev: undefined,
+  yPrev: undefined,
+  audioActivated: false
+};
+
+liveGroup.rotation.offset = {
+  x: 0,
+  y: 0
+}
+camera.position.z = isMobile ? 20 : 16;
 
 renderer.setSize(innerWidth, innerHeight);
 renderer.setPixelRatio(window.devicePixelRatio);
 document.body.appendChild(renderer.domElement);
 
-const galaxyTexture = new THREE
-  .TextureLoader()
-  .load('./textures/galaxy.jpg');
-const earthTexture = new THREE
-  .TextureLoader()
-  .load('./textures/earth_dark_texture.jpg');
 const redStarTexture =
   new THREE
     .TextureLoader()
@@ -44,32 +53,20 @@ const blueStarTexture =
     .TextureLoader()
     .load('./textures/blue_star.png');
 
-const RED_STARS_COUNT = 100;
-const BLUE_STARS_COUNT = 50;
+const RED_STARS_COUNT = 1500;
+const BLUE_STARS_COUNT = 2000;
 
-scene.background = galaxyTexture;
+scene.add(SceneComponentBuilder.createUniverseStars(redStarTexture, 10, RED_STARS_COUNT));
+scene.add(SceneComponentBuilder.createUniverseStars(blueStarTexture, 8, BLUE_STARS_COUNT));
 
-scene.add(SceneComponentBuilder.createUniverseStars(redStarTexture, 8, RED_STARS_COUNT));
-scene.add(SceneComponentBuilder.createUniverseStars(blueStarTexture, 4, BLUE_STARS_COUNT));
 scene.add(SceneComponentBuilder.createAtmosphere());
-const liveGroup = new THREE.Group();
-liveGroup.add(SceneComponentBuilder.createGlobe(earthTexture));
+liveGroup.add(SceneComponentBuilder.createGlobe(
+  new THREE
+    .TextureLoader()
+    .load('./textures/earth_dark_texture.jpg'))
+);
 scene.add(liveGroup);
 
-camera.position.z = isMobile ? 20 : 16;
-const mouse = {
-  x: 0,
-  y: 0,
-  down: false,
-  xPrev: undefined,
-  yPrev: undefined,
-  audioActivated: false
-}
-
-liveGroup.rotation.offset = {
-  x: 0,
-  y: 0
-}
 
 function updateFrame() {
   // update the picking ray with the camera and pointer position
