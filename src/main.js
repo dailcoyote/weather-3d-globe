@@ -13,16 +13,16 @@ const audio = new Audio('./audio/space.mp3');
 audio.loop = true;
 
 let camera = new THREE.PerspectiveCamera(
-  85,
-  innerWidth / innerHeight,
+  80,
+  canvasContainer.offsetWidth / canvasContainer.offsetHeight,
   0.1,
-  2000
+  1200
 );
 
 const raycaster = new THREE.Raycaster();
 const renderer = new THREE.WebGLRenderer({
   antialias: true,
-  canvas: canvasContainer
+  canvas: document.querySelector('canvas')
 });
 const liveGroup = new THREE.Group();
 const mouse = {
@@ -32,7 +32,7 @@ const mouse = {
   xPrev: undefined,
   yPrev: undefined,
   audioActivated: false,
-  cursorGrabActivated: false
+  cursorCrossesWeatherCanvas: false
 };
 
 liveGroup.rotation.offset = {
@@ -41,9 +41,8 @@ liveGroup.rotation.offset = {
 }
 camera.position.z = isMobile ? 20 : 16;
 
-renderer.setSize(innerWidth, innerHeight);
+renderer.setSize(canvasContainer.offsetWidth, canvasContainer.offsetHeight);
 renderer.setPixelRatio(window.devicePixelRatio);
-document.body.appendChild(renderer.domElement);
 
 const redStarTexture =
   new THREE
@@ -73,25 +72,16 @@ function updateFrame() {
   // update the picking ray with the camera and pointer position
   raycaster.setFromCamera(mouse, camera);
 
-  let earth3dObject = liveGroup.getObjectByName('globe');
-  let doesIntersected = raycaster.intersectObject(earth3dObject).length > 0;
-
-  if (doesIntersected) {
-    mouse.cursorGrabActivated = true;
+  if (mouse.cursorCrossesWeatherCanvas) {
+    document.querySelector('canvas').style.cursor = 'grab';
+  } else {
+    document.querySelector('canvas').style.cursor = 'default';
   }
-  else if (!doesIntersected && !mouse.down) {
-    mouse.cursorGrabActivated = false;
-  }
-
-  document.getElementById("canvasContainer").style.cursor =
-    mouse.cursorGrabActivated ? 'grab' : 'default';
 
   renderer.render(scene, camera);
 }
 
 function animate() {
-  renderer.render(scene, camera);
-
   if (!mouse.down) {
     liveGroup.rotation.y += 0.002;    //mouse.x * 0.5; 
   }
@@ -112,10 +102,7 @@ canvasContainer.addEventListener('mousedown', (event) => {
     let { clientX, clientY } = event;
     mouse.xPrev = clientX;
     mouse.yPrev = clientY;
-
-    if (mouse.cursorGrabActivated) {
-      mouse.down = true;
-    }
+    mouse.down = true;
   }
 
   if (!mouse.audioActivated) {
@@ -124,27 +111,26 @@ canvasContainer.addEventListener('mousedown', (event) => {
   }
 });
 
-if (!isMobile) {
-  addEventListener("wheel", (event) => {
-    let deltaY = event.deltaY / 1000;
-    let offsetY = camera.position.z + deltaY;
-    if (offsetY >= 12 && offsetY <= 36) {
-      camera.position.z = offsetY;
-    }
-  });
+canvasContainer.addEventListener('mouseover', () => {
+  mouse.cursorCrossesWeatherCanvas = true;
+})
 
+canvasContainer.addEventListener('mouseout', () => {
+  mouse.cursorCrossesWeatherCanvas = false;
+})
+
+canvasContainer.addEventListener("wheel", (event) => {
+  let deltaY = event.deltaY / 1000;
+  let offsetY = camera.position.z + deltaY;
+  if (offsetY >= 6 && offsetY <= 36) {
+    camera.position.z = offsetY;
+  }
+});
+
+if (!isMobile) {
   addEventListener('mousemove', (event) => {
     mouse.x = (event.clientX / innerWidth) * 2 - 1
     mouse.y = -(event.clientY / innerHeight) * 2 + 1
-
-    // if (innerWidth >= 1280) {
-    //   mouse.x = ((event.clientX - innerWidth / 2) / (innerWidth / 2)) * 2 - 1;
-    //   mouse.y = -(event.clientX / innerHeight) * 2 + 1;
-    // } else {
-    //   const offset = canvasContainer.getBoundingClientRect().top;
-    //   mouse.x = (event.clientX / innerWidth) * 2 - 1
-    //   mouse.y = -((event.clientY - offset) / innerHeight) * 2 + 1
-    // }
 
     if (mouse.down) {
       event.preventDefault();
@@ -157,7 +143,7 @@ if (!isMobile) {
       gsap.to(liveGroup.rotation, {
         y: liveGroup.rotation.offset.y,
         x: liveGroup.rotation.offset.x,
-        duration: 2
+        duration: 2.5
       });
 
       mouse.xPrev = event.clientX;
@@ -190,7 +176,7 @@ if (isMobile) {
 
     if (mouse.down) {
       event.preventDefault();
-      const offset = canvasContainer.getBoundingClientRect().top;
+      const offset = document.querySelector('canvas').getBoundingClientRect().top;
       mouse.x = (event.clientX / innerWidth) * 2 - 1
       mouse.y = -((event.clientY - offset) / innerHeight) * 2 + 1
 
