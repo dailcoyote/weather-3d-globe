@@ -44,20 +44,23 @@ camera.position.z = isMobile ? 20 : 16;
 renderer.setSize(canvasContainer.offsetWidth, canvasContainer.offsetHeight);
 renderer.setPixelRatio(window.devicePixelRatio);
 
-const redStarTexture =
-  new THREE
-    .TextureLoader()
-    .load('./textures/red_star.png');
-const blueStarTexture =
-  new THREE
-    .TextureLoader()
-    .load('./textures/blue_star.png');
-
 const RED_STARS_COUNT = isMobile ? 300 : 1500;
 const BLUE_STARS_COUNT = isMobile ? 600 : 2100;
 
-scene.add(SceneComponentBuilder.createUniverseStars(redStarTexture, 10, RED_STARS_COUNT));
-scene.add(SceneComponentBuilder.createUniverseStars(blueStarTexture, 8, BLUE_STARS_COUNT));
+scene.add(SceneComponentBuilder.createUniverseStars(
+  new THREE
+    .TextureLoader()
+    .load('./textures/red_star.png'),
+  10,
+  RED_STARS_COUNT)
+);
+scene.add(SceneComponentBuilder.createUniverseStars(
+  new THREE
+    .TextureLoader()
+    .load('./textures/blue_star.png'),
+  8,
+  BLUE_STARS_COUNT)
+);
 
 scene.add(SceneComponentBuilder.createAtmosphere());
 liveGroup.add(SceneComponentBuilder.createGlobe(
