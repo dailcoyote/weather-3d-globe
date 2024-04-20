@@ -19,7 +19,7 @@ class VRSpace {
             80,
             VRContainer.offsetWidth / VRContainer.offsetHeight,
             0.1,
-            1200
+            1600
         );
         raycaster = new THREE.Raycaster();
         renderer = new THREE.WebGLRenderer({
@@ -28,7 +28,7 @@ class VRSpace {
         });
         planetaryShell = new THREE.Group();
 
-        camera.position.z = isSmallScreen ? 20 : 16;
+        camera.position.z = isSmallScreen ? 20 : 15;
         planetaryShell.rotation.offset = {
             x: 0,
             y: 0,
