@@ -12,6 +12,12 @@ const isMobile = (function () {
   return regex.test(navigator.userAgent);
 })();
 const canvasContainerRef = ref();
+const locations = [
+  { name: "New York", country: "USA" },
+  { name: "New London", country: "Australia" },
+  { name: "New Deli", country: "India" },
+  { name: "New Amsterdam", country: "Canada" },
+];
 
 onMounted(() => {
   const VRContainer = canvasContainerRef.value;
@@ -26,7 +32,10 @@ library.add(fas);
 <template>
   <div class="flex h-screen bg-black">
     <!-- SYSTEM PANEL -->
-    <div class="w-1/2 flex flex-col p-8">
+    <div
+      class="w-1/3 flex flex-col py-8 px-10"
+      style="border-right: 0.76px solid #646cff"
+    >
       <div class="row-auto">
         <form id="search-box">
           <input type="text" placeholder="Search location..." />
@@ -35,9 +44,13 @@ library.add(fas);
       <ul
         id="suggestion-short-list"
         role="list"
-        class="divide-y divide-gray-100"
+        class="divide-y divide-gray-50 my-4"
       >
-        <li class="flex my-8">
+        <li
+          v-for="item in locations"
+          :key="item.name"
+          class="flex gap-x-6 py-4"
+        >
           <div class="flex min-w-0 gap-x-4">
             <FontAwesomeIcon
               icon="fa-solid fa-location-arrow"
@@ -45,12 +58,12 @@ library.add(fas);
               style="color: aqua"
             />
           </div>
-          <div class="min-w-0 flex-auto px-6">
-            <p class="text-sm font-semibold leading-4 text-white">
-              Leslie Alexander
+          <div class="min-w-0 flex-auto px-4">
+            <p class="truncate text-md leading-5 text-white">
+              {{ item.name }}
             </p>
-            <p class="mt-1 truncate text-md leading-5 text-white">
-              leslie.alexander@example.com
+            <p class="mt-1 text-sm font-semibold leading-4 text-white">
+              {{ item.country }}
             </p>
           </div>
         </li>
@@ -60,7 +73,7 @@ library.add(fas);
       </h3>
     </div>
     <!-- CANVAS CONTAINER -->
-    <div class="w-1/2" ref="canvasContainerRef">
+    <div class="w-2/3" ref="canvasContainerRef">
       <canvas></canvas>
     </div>
   </div>
@@ -69,14 +82,13 @@ library.add(fas);
 <style scoped>
 #search-box {
   position: relative;
-  width: 60%;
 }
 
 #search-box > input {
   background: #eceef2;
   width: 100%;
   height: 41px;
-  padding: 11px 15px;
+  padding: 12px 15px;
   box-sizing: border-box;
   border-radius: 7px;
   border: none;
@@ -85,5 +97,9 @@ library.add(fas);
   line-height: 38px;
   /* identical to box height */
   color: #000000;
+}
+
+#suggestion-short-list > li {
+  cursor: pointer;
 }
 </style>
