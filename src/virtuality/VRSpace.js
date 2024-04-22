@@ -39,7 +39,7 @@ class VRSpace {
 
         planetaryShell.add(
             SceneComponentBuilder.createGlobe(
-                new THREE.TextureLoader().load("./textures/earth_dark_texture.jpg")
+                new THREE.TextureLoader().load("./textures/8081_earthlights10k.jpg")
             )
         );
         scene.add(

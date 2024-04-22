@@ -6,12 +6,15 @@ const mouse = {
     down: false,
     xPrev: undefined,
     yPrev: undefined,
-    audioActivated: false,
-    cursorGrabActivated: false,
+    audioActivated: false
 };
 
+const auto = {
+    planetRotationEnabled: true 
+}
+
 function updateFrame(VRContainer, vrSpace) {
-    if (!mouse.down) {
+    if (auto.planetRotationEnabled && !mouse.down) {
         vrSpace.rotatePlanetY();
     }
 
@@ -44,6 +47,10 @@ function createMotionControls(VRContainer, vrSpace, hasMobileDevice) {
             mouse.down = true;
         }
 
+        if (mouse.down && auto.planetRotationEnabled) {
+            auto.planetRotationEnabled = false;
+        }
+
         if (!mouse.audioActivated) {
             AudioPlayer.play();
             mouse.audioActivated = !mouse.audioActivated;
@@ -61,7 +68,7 @@ function createMotionControls(VRContainer, vrSpace, hasMobileDevice) {
     VRContainer.addEventListener("wheel", (event) => {
         let deltaY = event.deltaY / 1000;
         let offsetY = vrSpace.getCameraPosition().z + deltaY;
-        if (offsetY >= 10 && offsetY <= 40) {
+        if (offsetY >= 6 && offsetY <= 40) {
             vrSpace.cameraNewZoom(offsetY);
         }
     });
