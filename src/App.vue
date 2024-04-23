@@ -1,10 +1,11 @@
 <script setup>
-import { onMounted, ref } from "vue";
+import { onMounted, ref, watch } from "vue";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { fas } from "@fortawesome/free-solid-svg-icons";
 import VRSpace from "./virtuality/VRSpace";
 import { createMotionControls, animate } from "./virtuality/Motion";
+import GeoRadar from "./map/GeoRadar";
 
 const isMobile = (function () {
   const regex =
@@ -12,12 +13,21 @@ const isMobile = (function () {
   return regex.test(navigator.userAgent);
 })();
 const canvasContainerRef = ref();
-const locations = [
-  { name: "New York", country: "USA" },
-  { name: "New London", country: "Australia" },
-  { name: "New Deli", country: "India" },
-  { name: "New Amsterdam", country: "Canada" },
-];
+const searchTerm = ref("");
+let locationShortList = [];
+
+library.add(fas);
+
+watch(searchTerm, async (newTerms) => {
+  console.log(newTerms);
+  if (newTerms && newTerms.length >= 3) {
+    locationShortList = [...GeoRadar.search(newTerms)];
+    console.log(locationShortList);
+  }
+  if (!newTerms && locationShortList.length > 0) {
+      locationShortList = [];
+  }
+});
 
 onMounted(() => {
   const VRContainer = canvasContainerRef.value;
@@ -25,8 +35,6 @@ onMounted(() => {
   createMotionControls(VRContainer, vrSpace, isMobile);
   animate(VRContainer, vrSpace);
 });
-
-library.add(fas);
 </script>
 
 <template>
@@ -38,17 +46,21 @@ library.add(fas);
     >
       <div class="row-auto">
         <form id="search-box">
-          <input type="text" placeholder="Search location..." />
+          <input
+            type="text"
+            placeholder="Search location..."
+            v-model="searchTerm"
+          />
         </form>
       </div>
       <ul
         id="suggestion-short-list"
         role="list"
-        class="divide-y divide-gray-50 my-4"
+        class="divide-gray-50 my-4"
       >
         <li
-          v-for="item in locations"
-          :key="item.name"
+          v-for="item in locationShortList"
+          :key="item.id"
           class="flex gap-x-6 py-4"
         >
           <div class="flex min-w-0 gap-x-4">
@@ -68,9 +80,9 @@ library.add(fas);
           </div>
         </li>
       </ul>
-      <h3 class="text-white font-exo">
+      <!-- <h3 class="text-white font-exo">
         CHALLENGES THE STANDARD OF SPACE EXPLORATION
-      </h3>
+      </h3> -->
     </div>
     <!-- CANVAS CONTAINER -->
     <div class="w-2/3" ref="canvasContainerRef">
