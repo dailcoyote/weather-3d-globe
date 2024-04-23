@@ -51,10 +51,10 @@ function createMotionControls(VRContainer, vrSpace, hasMobileDevice) {
             auto.planetRotationEnabled = false;
         }
 
-        if (!mouse.audioActivated) {
-            AudioPlayer.play();
-            mouse.audioActivated = !mouse.audioActivated;
-        }
+        // if (!mouse.audioActivated) {
+        //     AudioPlayer.play();
+        //     mouse.audioActivated = !mouse.audioActivated;
+        // }
     });
 
     VRContainer.addEventListener("mouseover", () => {

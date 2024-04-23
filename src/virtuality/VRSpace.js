@@ -12,6 +12,24 @@ const physics = {
     frictionForce: 0.006
 }
 
+const utils = {
+    transformCoords2Vector3(lat, lng) {
+        const latitude = (lat / 180) * Math.PI;
+        const longitude = (lng / 180) * Math.PI;
+        const radius = 5;
+
+        const x = radius * Math.cos(latitude) * Math.sin(longitude);
+        const y = radius * Math.sin(latitude);
+        const z = radius * Math.cos(latitude) * Math.cos(longitude);
+
+        return [x, y, z];
+    }
+}
+
+const textures = {
+    clouds: new THREE.TextureLoader().load("./textures/clouds.png")
+}
+
 class VRSpace {
     constructor(VRContainer, isSmallScreen) {
         scene = new THREE.Scene();
@@ -90,6 +108,40 @@ class VRSpace {
             y: planetaryShell.rotation.offset.y,
             x: planetaryShell.rotation.offset.x,
             duration: 2.5,
+        });
+    }
+
+    createVirtualMarker(lat, lng) {
+        const [x, y, z] = utils.transformCoords2Vector3(lat, lng);
+        const marker = new THREE.Mesh(
+            new THREE.BoxGeometry(
+                0.075,
+                0.125,
+                0.5
+            ),
+            new THREE.MeshBasicMaterial({
+                color: '#3BF7FF',
+                opacity: 0.4,
+                transparent: true
+            })
+        );
+
+        marker.position.x = x;
+        marker.position.y = y;
+        marker.position.z = z;
+
+        marker.lookAt(0, 0, 0);
+        marker.geometry.applyMatrix4(new THREE.Matrix4().makeTranslation(0, 0, -0.025))
+
+        planetaryShell.add(marker);
+
+        gsap.to(marker.scale, {
+            z: 2.0,
+            duration: 1.5,
+            yoyo: true,
+            repeat: -1,
+            ease: 'linear',
+            delay: Math.random()
         });
     }
 }

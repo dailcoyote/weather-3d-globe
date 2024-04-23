@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref, watch } from "vue";
+import { onMounted, ref, watch, reactive } from "vue";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { fas } from "@fortawesome/free-solid-svg-icons";
@@ -14,26 +14,40 @@ const isMobile = (function () {
 })();
 const canvasContainerRef = ref();
 const searchTerm = ref("");
-let locationShortList = [];
+
+let vrSpace = undefined;
+const state = reactive({
+  locationShortList: []
+});
 
 library.add(fas);
 
-watch(searchTerm, async (newTerms) => {
-  console.log(newTerms);
-  if (newTerms && newTerms.length >= 3) {
-    locationShortList = [...GeoRadar.search(newTerms)];
-    console.log(locationShortList);
-  }
-  if (!newTerms && locationShortList.length > 0) {
-      locationShortList = [];
-  }
-});
-
-onMounted(() => {
+function setup() {
   const VRContainer = canvasContainerRef.value;
-  const vrSpace = new VRSpace(VRContainer, isMobile);
+  vrSpace = new VRSpace(VRContainer, isMobile);
   createMotionControls(VRContainer, vrSpace, isMobile);
   animate(VRContainer, vrSpace);
+}
+
+function onLocationItemSelected(id, coord) {
+  if (!coord) {
+    return false;
+  }
+  vrSpace.createVirtualMarker(coord?.lat, coord?.lon);
+  searchTerm.value = "";
+}
+
+onMounted(() => {
+  setup();
+});
+
+watch(searchTerm, async (newTerms) => {
+  if (newTerms && newTerms.length >= 3) {
+    state.locationShortList = [...GeoRadar.search(newTerms)];
+  }
+  if (!newTerms && state.locationShortList.length > 0) {
+    state.locationShortList = [];
+  }
 });
 </script>
 
@@ -53,15 +67,16 @@ onMounted(() => {
           />
         </form>
       </div>
-      <ul
-        id="suggestion-short-list"
-        role="list"
-        class="divide-gray-50 my-4"
-      >
+      <ul id="suggestion-short-list" role="list" class="divide-gray-50 my-4">
         <li
-          v-for="item in locationShortList"
+          v-for="item in state.locationShortList"
           :key="item.id"
           class="flex gap-x-6 py-4"
+          @click="
+            () => {
+              onLocationItemSelected(item.id, item.coord);
+            }
+          "
         >
           <div class="flex min-w-0 gap-x-4">
             <FontAwesomeIcon

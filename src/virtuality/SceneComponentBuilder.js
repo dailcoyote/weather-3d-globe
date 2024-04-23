@@ -9,9 +9,12 @@ import {
     BufferGeometry,
     ShaderMaterial,
     PointsMaterial,
+    MeshBasicMaterial,
+    PlaneGeometry,
     Float32BufferAttribute,
     Points,
     AdditiveBlending,
+    DoubleSide,
     BackSide
 } from 'three';
 
@@ -75,7 +78,6 @@ class SceneComponentBuilder {
         return new Points(
             starGeometry, starMaterial
         )
-
     }
 }
 

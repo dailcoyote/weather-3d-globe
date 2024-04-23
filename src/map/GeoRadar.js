@@ -24,7 +24,7 @@ class Dictionary {
             abcSize = abcIndexVector.length;
             let temp = abcIndexVector[abcSize - 1];
             if (record.name < temp.name) {
-                abcIndexVector[abcSize - 1] = {...record};
+                abcIndexVector[abcSize - 1] = { ...record };
                 abcIndexVector.push(temp);
             } else {
                 abcIndexVector.push(record);
