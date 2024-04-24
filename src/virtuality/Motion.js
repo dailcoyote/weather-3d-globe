@@ -69,7 +69,7 @@ function createMotionControls(VRContainer, vrSpace, hasMobileDevice) {
         let deltaY = event.deltaY / 1000;
         let offsetY = vrSpace.getCameraPosition().z + deltaY;
         if (offsetY >= 6 && offsetY <= 40) {
-            vrSpace.cameraNewZoom(offsetY);
+            vrSpace.setNewCameraZoom(offsetY);
         }
     });
 

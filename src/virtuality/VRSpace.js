@@ -87,7 +87,7 @@ class VRSpace {
         raycaster.setFromCamera(targetCoords, camera);
     }
 
-    cameraNewZoom(value) {
+    setNewCameraZoom(value) {
         camera.position.z = value;
     }
 

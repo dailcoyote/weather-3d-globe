@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref, watch, reactive } from "vue";
+import { onMounted, ref, watch, reactive, computed } from "vue";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { fas } from "@fortawesome/free-solid-svg-icons";
@@ -13,11 +13,16 @@ const isMobile = (function () {
   return regex.test(navigator.userAgent);
 })();
 const canvasContainerRef = ref();
-const searchTerm = ref("");
+const searchTermRef = ref("");
 
 let vrSpace = undefined;
 const state = reactive({
-  locationShortList: []
+  relevanceLocationShortList: [],
+  selectedLocationSet: new Set(),
+});
+// a computed ref
+const relevanceResultVisible = computed(() => {
+  return searchTermRef.value.length > 0;
 });
 
 library.add(fas);
@@ -29,24 +34,29 @@ function setup() {
   animate(VRContainer, vrSpace);
 }
 
-function onLocationItemSelected(id, coord) {
-  if (!coord) {
+function onLocationItemSelected(id) {
+  const location = state.relevanceLocationShortList.find(
+    (item) => item.id === id
+  );
+  console.log("location:", arguments, location);
+  if (!location.coord) {
     return false;
   }
-  vrSpace.createVirtualMarker(coord?.lat, coord?.lon);
-  searchTerm.value = "";
+  vrSpace.createVirtualMarker(location.coord?.lat, location.coord?.lon);
+  state.selectedLocationSet.add({ ...location });
+  searchTermRef.value = "";
 }
 
 onMounted(() => {
   setup();
 });
 
-watch(searchTerm, async (newTerms) => {
+watch(searchTermRef, async (newTerms) => {
   if (newTerms && newTerms.length >= 3) {
-    state.locationShortList = [...GeoRadar.search(newTerms)];
+    state.relevanceLocationShortList = [...GeoRadar.search(newTerms)];
   }
-  if (!newTerms && state.locationShortList.length > 0) {
-    state.locationShortList = [];
+  if (!newTerms && state.relevanceLocationShortList.length > 0) {
+    state.relevanceLocationShortList = [];
   }
 });
 </script>
@@ -63,20 +73,22 @@ watch(searchTerm, async (newTerms) => {
           <input
             type="text"
             placeholder="Search location..."
-            v-model="searchTerm"
+            v-model="searchTermRef"
           />
         </form>
       </div>
-      <ul id="suggestion-short-list" role="list" class="divide-gray-50 my-4">
+      <!-- RELEVANCE RESULT SET -->
+      <ul
+        v-if="relevanceResultVisible"
+        id="suggestion-short-list"
+        role="list"
+        class="divide-gray-50 my-4"
+      >
         <li
-          v-for="item in state.locationShortList"
+          v-for="item in state.relevanceLocationShortList"
           :key="item.id"
           class="flex gap-x-6 py-4"
-          @click="
-            () => {
-              onLocationItemSelected(item.id, item.coord);
-            }
-          "
+          @click="onLocationItemSelected(item.id)"
         >
           <div class="flex min-w-0 gap-x-4">
             <FontAwesomeIcon
@@ -95,6 +107,59 @@ watch(searchTerm, async (newTerms) => {
           </div>
         </li>
       </ul>
+      <!-- SELECTED LOCATIONS -->
+      <template v-if="!relevanceResultVisible">
+        <ul
+          v-if="state.selectedLocationSet.size > 0"
+          id="active-location-list"
+          role="list"
+          class="divide-y divide-gray-100 my-4"
+        >
+          <li
+            v-for="location in state.selectedLocationSet"
+            :key="location.id"
+            class="flex justify-between gap-x-6 py-4"
+          >
+            <div class="flex min-w-0 gap-x-4">
+              <FontAwesomeIcon
+                icon="fa-solid fa-location-arrow"
+                class="fa-2x"
+                style="color: aqua"
+              />
+            </div>
+            <div class="min-w-0 flex-auto px-4">
+              <p class="truncate text-md leading-5 text-white">
+                {{ location.name }}
+              </p>
+              <p class="mt-1 text-sm font-semibold leading-4 text-white">
+                {{ location.country }}
+              </p>
+              <p class="mt-1 text-xs leading-5 text-gray-500">
+                Geo coordinates
+                {{ location.coord?.lat }}° / {{ location.coord?.lon }}°
+              </p>
+            </div>
+          </li>
+        </ul>
+        <dl
+          v-else
+          class="mt-20 mx-10 justify-space-between max-w-xl space-y-8 text-base leading-7 text-gray-600 lg:max-w-none"
+        >
+          <div class="flex items-center gap-x-6">
+            <FontAwesomeIcon
+              icon="fa-solid fa-globe"
+              class="fa-3x"
+              style="color: #3C5B6F;"
+            />
+            <div>
+              <p class="inline font-bold text-white-900 leading-6">
+                Your location list is empty
+              </p>
+            </div>
+          </div>
+        </dl>
+      </template>
+
       <!-- <h3 class="text-white font-exo">
         CHALLENGES THE STANDARD OF SPACE EXPLORATION
       </h3> -->
