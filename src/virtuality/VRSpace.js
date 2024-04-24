@@ -18,11 +18,11 @@ const utils = {
         const longitude = (lng / 180) * Math.PI;
         const radius = 5;
 
-        const x = radius * Math.cos(latitude) * Math.sin(longitude);
-        const y = radius * Math.sin(latitude);
-        const z = radius * Math.cos(latitude) * Math.cos(longitude);
+        const dx = radius * Math.cos(latitude) * Math.sin(longitude);
+        const dy = radius * Math.sin(latitude);
+        const dz = radius * Math.cos(latitude) * Math.cos(longitude);
 
-        return [x, y, z];
+        return [dx, dy, dz];
     }
 }
 
@@ -111,31 +111,41 @@ class VRSpace {
         });
     }
 
-    createVirtualMarker(lat, lng) {
-        const [x, y, z] = utils.transformCoords2Vector3(lat, lng);
-        const marker = new THREE.Mesh(
-            new THREE.BoxGeometry(
-                0.075,
-                0.125,
-                0.5
-            ),
-            new THREE.MeshBasicMaterial({
-                color: '#3BF7FF',
-                opacity: 0.4,
-                transparent: true
+    selectVirtualMarker(id) {
+        planetaryShell.children
+            .filter(mesh => mesh.geometry.type === 'BoxGeometry')
+            .map(mesh => {
+                if (mesh.name === id) {
+                    mesh.material.opacity = 0.6;
+                    mesh.material.color.setHex(0xEE4B2B);
+                } else {
+                    if (mesh.material.color.getHex() !== 0x3BF7FF) {
+                        mesh.material.color.setHex(0x3BF7FF);
+                        mesh.material.opacity = 0.4;
+                    }
+                }
             })
+    }
+
+    createVirtualMarker(id, lat, lng) {
+        const [dx, dy, dz] = utils.transformCoords2Vector3(lat, lng);
+        const vrMarker = SceneComponentBuilder.createVirtualMarker(
+            id,
+            0.075,
+            0.125,
+            0.5,
+            0x3BF7FF
         );
 
-        marker.position.x = x;
-        marker.position.y = y;
-        marker.position.z = z;
+        vrMarker.position.x = dx;
+        vrMarker.position.y = dy;
+        vrMarker.position.z = dz;
 
-        marker.lookAt(0, 0, 0);
-        marker.geometry.applyMatrix4(new THREE.Matrix4().makeTranslation(0, 0, -0.025))
+        vrMarker.lookAt(0, 0, 0);
+        vrMarker.geometry.applyMatrix4(new THREE.Matrix4().makeTranslation(0, 0, -0.025));
+        planetaryShell.add(vrMarker);
 
-        planetaryShell.add(marker);
-
-        gsap.to(marker.scale, {
+        gsap.to(vrMarker.scale, {
             z: 2.0,
             duration: 1.5,
             yoyo: true,

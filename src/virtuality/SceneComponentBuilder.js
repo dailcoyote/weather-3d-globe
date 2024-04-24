@@ -10,7 +10,8 @@ import {
     ShaderMaterial,
     PointsMaterial,
     MeshBasicMaterial,
-    PlaneGeometry,
+    // PlaneGeometry,
+    BoxGeometry,
     Float32BufferAttribute,
     Points,
     AdditiveBlending,
@@ -78,6 +79,22 @@ class SceneComponentBuilder {
         return new Points(
             starGeometry, starMaterial
         )
+    }
+    static createVirtualMarker(id, width, height, depth, color, opacity = 0.4) {
+        const markerGeometry = new BoxGeometry(
+            width, height, depth
+        );
+        const markerMaterial = new MeshBasicMaterial({
+            color,
+            opacity,
+            transparent: true
+        });
+        const virtualMarkerMesh = new Mesh(
+            markerGeometry,
+            markerMaterial
+        );
+        virtualMarkerMesh.name = id;
+        return virtualMarkerMesh;
     }
 }
 

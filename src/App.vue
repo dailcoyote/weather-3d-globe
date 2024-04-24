@@ -19,6 +19,7 @@ let vrSpace = undefined;
 const state = reactive({
   relevanceLocationShortList: [],
   selectedLocationSet: new Set(),
+  activeVRMarkerID: null,
 });
 // a computed ref
 const relevanceResultVisible = computed(() => {
@@ -34,17 +35,23 @@ function setup() {
   animate(VRContainer, vrSpace);
 }
 
-function onLocationItemSelected(id) {
+function onRelevationItemSelect(id) {
   const location = state.relevanceLocationShortList.find(
     (item) => item.id === id
   );
-  console.log("location:", arguments, location);
   if (!location.coord) {
     return false;
   }
-  vrSpace.createVirtualMarker(location.coord?.lat, location.coord?.lon);
+  vrSpace.createVirtualMarker(id, location.coord?.lat, location.coord?.lon);
   state.selectedLocationSet.add({ ...location });
   searchTermRef.value = "";
+}
+
+function onVRMarkerFocus(id) {
+  if (id) {
+    vrSpace.selectVirtualMarker(id);
+    state.activeVRMarkerID = id;
+  }
 }
 
 onMounted(() => {
@@ -88,7 +95,7 @@ watch(searchTermRef, async (newTerms) => {
           v-for="item in state.relevanceLocationShortList"
           :key="item.id"
           class="flex gap-x-6 py-4"
-          @click="onLocationItemSelected(item.id)"
+          @click="onRelevationItemSelect(item.id)"
         >
           <div class="flex min-w-0 gap-x-4">
             <FontAwesomeIcon
@@ -119,10 +126,11 @@ watch(searchTermRef, async (newTerms) => {
             v-for="location in state.selectedLocationSet"
             :key="location.id"
             class="flex justify-between gap-x-6 py-4"
+            @click="onVRMarkerFocus(location.id)"
           >
             <div class="flex min-w-0 gap-x-4">
               <FontAwesomeIcon
-                icon="fa-solid fa-location-arrow"
+                icon="fa-solid fa-location-crosshairs"
                 class="fa-2x"
                 style="color: aqua"
               />
@@ -139,6 +147,17 @@ watch(searchTermRef, async (newTerms) => {
                 {{ location.coord?.lat }}° / {{ location.coord?.lon }}°
               </p>
             </div>
+            <div
+              v-if="state.activeVRMarkerID == location.id"
+              class="hidden shrink-0 sm:flex sm:flex-col sm:items-end"
+            >
+              <div class="mt-1 flex items-center gap-x-1.5">
+                <div class="flex-none rounded-full bg-rose-600/20 p-1">
+                  <div class="h-1.5 w-1.5 rounded-full bg-rose-600" />
+                </div>
+                <p class="text-xs leading-5 text-gray-500">Active</p>
+              </div>
+            </div>
           </li>
         </ul>
         <dl
@@ -149,7 +168,7 @@ watch(searchTermRef, async (newTerms) => {
             <FontAwesomeIcon
               icon="fa-solid fa-globe"
               class="fa-3x"
-              style="color: #3C5B6F;"
+              style="color: #3c5b6f"
             />
             <div>
               <p class="inline font-bold text-white-900 leading-6">
@@ -191,6 +210,7 @@ watch(searchTermRef, async (newTerms) => {
   color: #000000;
 }
 
+#active-location-list > li,
 #suggestion-short-list > li {
   cursor: pointer;
 }
