@@ -17,8 +17,8 @@ const searchTermRef = ref("");
 
 let vrSpace = undefined;
 const state = reactive({
-  relevanceLocationShortList: [],
-  selectedLocationSet: new Set(),
+  relevanceLocationVector: [],
+  selectedLocationVector: new Array(),
   activeVRMarkerID: null,
 });
 // a computed ref
@@ -35,20 +35,24 @@ function setup() {
   animate(VRContainer, vrSpace);
 }
 
+function isAlreadyLocationMarked(id) {
+  return state.selectedLocationVector.some((cursor) => cursor.id == id);
+}
+
 function onRelevationItemSelect(id) {
-  const location = state.relevanceLocationShortList.find(
+  const location = state.relevanceLocationVector.find(
     (item) => item.id === id
   );
-  if (!location.coord) {
-    return false;
+  if (!location?.coord || isAlreadyLocationMarked(id)) {
+    return;
   }
   vrSpace.createVirtualMarker(id, location.coord?.lat, location.coord?.lon);
-  state.selectedLocationSet.add({ ...location });
+  state.selectedLocationVector.push({ ...location });
   searchTermRef.value = "";
 }
 
 function onVRMarkerFocus(id) {
-  if (id) {
+  if (id && isAlreadyLocationMarked(id)) {
     vrSpace.selectVirtualMarker(id);
     state.activeVRMarkerID = id;
   }
@@ -60,10 +64,10 @@ onMounted(() => {
 
 watch(searchTermRef, async (newTerms) => {
   if (newTerms && newTerms.length >= 3) {
-    state.relevanceLocationShortList = [...GeoRadar.search(newTerms)];
+    state.relevanceLocationVector = [...GeoRadar.search(newTerms)];
   }
-  if (!newTerms && state.relevanceLocationShortList.length > 0) {
-    state.relevanceLocationShortList = [];
+  if (!newTerms && state.relevanceLocationVector.length > 0) {
+    state.relevanceLocationVector = [];
   }
 });
 </script>
@@ -72,7 +76,7 @@ watch(searchTermRef, async (newTerms) => {
   <div class="flex h-screen bg-black">
     <!-- SYSTEM PANEL -->
     <div
-      class="w-1/3 flex flex-col py-8 px-10"
+      class="w-1/3 flex flex-col py-8 px-10 overflow-auto"
       style="border-right: 0.76px solid #646cff"
     >
       <div class="row-auto">
@@ -92,7 +96,7 @@ watch(searchTermRef, async (newTerms) => {
         class="divide-gray-50 my-4"
       >
         <li
-          v-for="item in state.relevanceLocationShortList"
+          v-for="item in state.relevanceLocationVector"
           :key="item.id"
           class="flex gap-x-6 py-4"
           @click="onRelevationItemSelect(item.id)"
@@ -112,18 +116,29 @@ watch(searchTermRef, async (newTerms) => {
               {{ item.country }}
             </p>
           </div>
+          <div
+            v-if="isAlreadyLocationMarked(item.id)"
+            class="hidden shrink-0 sm:flex sm:flex-col sm:items-end"
+          >
+            <div class="mt-1 flex items-center gap-x-1.5">
+              <div class="flex-none p-1">
+                <FontAwesomeIcon icon="fa-solid fa-lock" style="color: red" />
+              </div>
+              <p class="text-xs leading-5 text-gray-500">Locked</p>
+            </div>
+          </div>
         </li>
       </ul>
       <!-- SELECTED LOCATIONS -->
       <template v-if="!relevanceResultVisible">
         <ul
-          v-if="state.selectedLocationSet.size > 0"
+          v-if="state.selectedLocationVector.length > 0"
           id="active-location-list"
           role="list"
           class="divide-y divide-gray-100 my-4"
         >
           <li
-            v-for="location in state.selectedLocationSet"
+            v-for="location in state.selectedLocationVector"
             :key="location.id"
             class="flex justify-between gap-x-6 py-4"
             @click="onVRMarkerFocus(location.id)"
