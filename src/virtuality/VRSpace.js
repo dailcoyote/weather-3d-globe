@@ -26,6 +26,11 @@ const utils = {
     }
 }
 
+const VRScreenSize = {
+    width: undefined,
+    height: undefined
+}
+
 const textures = {
     clouds: new THREE.TextureLoader().load("./textures/clouds.png")
 }
@@ -46,7 +51,10 @@ class VRSpace {
         });
         planetaryShell = new THREE.Group();
 
-        camera.position.z = isSmallScreen ? 20 : 15;
+        VRScreenSize.width = VRContainer.offsetWidth;
+        VRScreenSize.height = VRContainer.offsetHeight;
+        camera.position.z = isSmallScreen ? 18 : 12;
+
         planetaryShell.rotation.offset = {
             x: 0,
             y: 0,
@@ -82,6 +90,14 @@ class VRSpace {
         return camera.position;
     }
 
+    getRenderer() {
+        return renderer;
+    }
+
+    getCamera() {
+        return camera;
+    }
+
     updateRay(x, y) {
         const targetCoords = new THREE.Vector2(x, y);
         raycaster.setFromCamera(targetCoords, camera);
@@ -111,13 +127,42 @@ class VRSpace {
         });
     }
 
-    selectVirtualMarker(id) {
+    someVirtualMarkersInRaycasterZone(id) {
+        const intersects = raycaster.intersectObjects(
+            planetaryShell.children.filter(mesh => {
+                return mesh.geometry.type === 'BoxGeometry' && mesh.name === id
+            })
+        );
+        
+        return intersects?.length > 0;
+    }
+
+    selectVirtualMarker(id, weatherHTMLElement) {
+        gsap.set(weatherHTMLElement, {
+            display: 'none'
+        });
+
         planetaryShell.children
             .filter(mesh => mesh.geometry.type === 'BoxGeometry')
             .map(mesh => {
                 if (mesh.name === id) {
                     mesh.material.opacity = 0.6;
                     mesh.material.color.setHex(0xEE4B2B);
+                    gsap.set(weatherHTMLElement, {
+                        x: (innerWidth - VRScreenSize.width) + (VRScreenSize.width / 10),
+                        y: (VRScreenSize.height) / 5
+                    });
+                    console.log(mesh)
+                    // camera.position.z = 10;
+
+                    setTimeout(() => {
+                        const { x, y, z } = mesh.position;
+                        gsap.set(weatherHTMLElement, {
+                            display: 'block'
+                        });
+                        // camera.lookAt(new THREE.Vector3(x, y, z))
+                    }, 100);
+
                 } else {
                     if (mesh.material.color.getHex() !== 0x3BF7FF) {
                         mesh.material.color.setHex(0x3BF7FF);

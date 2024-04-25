@@ -4,7 +4,12 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { fas } from "@fortawesome/free-solid-svg-icons";
 import VRSpace from "./virtuality/VRSpace";
-import { createMotionControls, animate } from "./virtuality/Motion";
+import {
+  createMotionControls,
+  animate,
+  printMouseData,
+  setMarkerID
+} from "./virtuality/Motion";
 import GeoRadar from "./map/GeoRadar";
 
 const isMobile = (function () {
@@ -13,6 +18,7 @@ const isMobile = (function () {
   return regex.test(navigator.userAgent);
 })();
 const canvasContainerRef = ref();
+const weatherPopupRef = ref();
 const searchTermRef = ref("");
 
 let vrSpace = undefined;
@@ -40,9 +46,7 @@ function isAlreadyLocationMarked(id) {
 }
 
 function onRelevationItemSelect(id) {
-  const location = state.relevanceLocationVector.find(
-    (item) => item.id === id
-  );
+  const location = state.relevanceLocationVector.find((item) => item.id === id);
   if (!location?.coord || isAlreadyLocationMarked(id)) {
     return;
   }
@@ -53,8 +57,11 @@ function onRelevationItemSelect(id) {
 
 function onVRMarkerFocus(id) {
   if (id && isAlreadyLocationMarked(id)) {
-    vrSpace.selectVirtualMarker(id);
+    const weatherPopupHTMLElement = weatherPopupRef.value;
+    vrSpace.selectVirtualMarker(id, weatherPopupHTMLElement);
     state.activeVRMarkerID = id;
+    setMarkerID(id);
+    printMouseData();
   }
 }
 
@@ -79,6 +86,7 @@ watch(searchTermRef, async (newTerms) => {
       class="w-1/3 flex flex-col py-8 px-10 overflow-auto"
       style="border-right: 0.76px solid #646cff"
     >
+      <!-- SEARCH BOX -->
       <div class="row-auto">
         <form id="search-box">
           <input
@@ -201,6 +209,15 @@ watch(searchTermRef, async (newTerms) => {
     <!-- CANVAS CONTAINER -->
     <div class="w-2/3" ref="canvasContainerRef">
       <canvas></canvas>
+    </div>
+    <div
+      ref="weatherPopupRef"
+      class="bg-black bg-opacity-50 fixed p-4 py-2 rounded"
+      style="display: none"
+    >
+      <h2 class="text-white text-xs">
+        <span>Weather info</span>
+      </h2>
     </div>
   </div>
 </template>

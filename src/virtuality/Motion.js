@@ -1,4 +1,5 @@
 import AudioPlayer from "./AudioPlayer";
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 const mouse = {
     x: 0,
@@ -10,13 +11,18 @@ const mouse = {
 };
 
 const auto = {
-    planetRotationEnabled: true 
+    planetRotationEnabled: true
 }
 
+let controls;
+let camera;
+
+let markerids = []
+
 function updateFrame(VRContainer, vrSpace) {
-    if (auto.planetRotationEnabled && !mouse.down) {
-        vrSpace.rotatePlanetY();
-    }
+    // if (auto.planetRotationEnabled && !mouse.down) {
+    //     vrSpace.rotatePlanetY();
+    // }
 
     // update the picking ray with the camera and pointer position
     vrSpace.updateRay(mouse.x, mouse.y);
@@ -25,15 +31,34 @@ function updateFrame(VRContainer, vrSpace) {
         ? "grab"
         : "default";
 
+    let ret = vrSpace.someVirtualMarkersInRaycasterZone(markerids[0] || '')
+    if (!ret) {
+        vrSpace.rotatePlanetY();
+    } else {
+        console.log(ret)
+    }
+
+    // controls.update();
+    // camera.rotation.y += Math.PI/2;
+
     vrSpace.render();
 }
 
+function setMarkerID(id) {
+    markerids.push(id)
+}
+
 function animate(VRContainer, vrSpace) {
+    camera = vrSpace.getCamera();
     updateFrame(VRContainer, vrSpace);
     requestAnimationFrame(animate.bind(this, VRContainer, vrSpace));
 }
 
 function createMotionControls(VRContainer, vrSpace, hasMobileDevice) {
+
+    controls = new OrbitControls(vrSpace.getCamera(), vrSpace.getRenderer().domElement);
+    // // controls.autoRotate = true;
+    controls.update();
 
     /*
           D E S K T O P   L I S T E N E R S
@@ -68,7 +93,7 @@ function createMotionControls(VRContainer, vrSpace, hasMobileDevice) {
     VRContainer.addEventListener("wheel", (event) => {
         let deltaY = event.deltaY / 1000;
         let offsetY = vrSpace.getCameraPosition().z + deltaY;
-        if (offsetY >= 6 && offsetY <= 40) {
+        if (offsetY >= 6 && offsetY <= 24) {
             vrSpace.setNewCameraZoom(offsetY);
         }
     });
@@ -98,4 +123,8 @@ function createMotionControls(VRContainer, vrSpace, hasMobileDevice) {
 
 }
 
-export { createMotionControls, animate }
+function printMouseData() {
+    console.log(mouse)
+}
+
+export { createMotionControls, animate, printMouseData, setMarkerID }
