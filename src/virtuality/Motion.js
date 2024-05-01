@@ -16,36 +16,18 @@ const auto = {
 
 let controls;
 let camera;
-
-let markerids = []
+let scene;
+let focusingMarkersQueue = new Set();
 
 function updateFrame(VRContainer, vrSpace) {
-    // if (auto.planetRotationEnabled && !mouse.down) {
-    //     vrSpace.rotatePlanetY();
-    // }
-
-    // update the picking ray with the camera and pointer position
-    vrSpace.updateRay(mouse.x, mouse.y);
-
     VRContainer.style.cursor = mouse.cursorCrossesWeatherCanvas
         ? "grab"
         : "default";
-
-    let ret = vrSpace.someVirtualMarkersInRaycasterZone(markerids[0] || '')
-    if (!ret) {
-        vrSpace.rotatePlanetY();
-    } else {
-        console.log(ret)
-    }
 
     // controls.update();
     // camera.rotation.y += Math.PI/2;
 
     vrSpace.render();
-}
-
-function setMarkerID(id) {
-    markerids.push(id)
 }
 
 function animate(VRContainer, vrSpace) {
@@ -54,11 +36,27 @@ function animate(VRContainer, vrSpace) {
     requestAnimationFrame(animate.bind(this, VRContainer, vrSpace));
 }
 
+function startCameraMovement(target) {
+    // controls.autoRotate = true;
+    printMouseData();
+    let z = target.position.z < 0 ? -8 : 8;
+
+    console.log("target virtual3d marker", target.position)
+    camera.position.set(target.position.x, target.position.y, z);
+    camera.lookAt( 0, 0, 0 );
+    console.log("camera position", camera.position)
+}
+
+function stopCameraMovement(target) {
+    controls.autoRotate = false;
+    // focusingMarkersQueue.delete(target);
+}
+
 function createMotionControls(VRContainer, vrSpace, hasMobileDevice) {
 
     controls = new OrbitControls(vrSpace.getCamera(), vrSpace.getRenderer().domElement);
-    // // controls.autoRotate = true;
     controls.update();
+    scene = vrSpace;
 
     /*
           D E S K T O P   L I S T E N E R S
@@ -93,14 +91,15 @@ function createMotionControls(VRContainer, vrSpace, hasMobileDevice) {
     VRContainer.addEventListener("wheel", (event) => {
         let deltaY = event.deltaY / 1000;
         let offsetY = vrSpace.getCameraPosition().z + deltaY;
+        console.log("auto camera position", camera.position)
         if (offsetY >= 6 && offsetY <= 24) {
             vrSpace.setNewCameraZoom(offsetY);
         }
     });
 
     addEventListener("mousemove", (event) => {
-        mouse.x = (event.clientX / innerWidth) * 2 - 1;
-        mouse.y = -(event.clientY / innerHeight) * 2 + 1;
+        mouse.x = (event.clientX / VRContainer.offsetWidth) * 2 - 1;
+        mouse.y = -(event.clientY / VRContainer.offsetHeight) * 2 + 1;
 
         if (mouse.down) {
             event.preventDefault();
@@ -124,7 +123,7 @@ function createMotionControls(VRContainer, vrSpace, hasMobileDevice) {
 }
 
 function printMouseData() {
-    console.log(mouse)
+    console.log("mouse", mouse)
 }
 
-export { createMotionControls, animate, printMouseData, setMarkerID }
+export { createMotionControls, animate, printMouseData, startCameraMovement }

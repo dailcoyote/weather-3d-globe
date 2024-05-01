@@ -98,11 +98,6 @@ class VRSpace {
         return camera;
     }
 
-    updateRay(x, y) {
-        const targetCoords = new THREE.Vector2(x, y);
-        raycaster.setFromCamera(targetCoords, camera);
-    }
-
     setNewCameraZoom(value) {
         camera.position.z = value;
     }
@@ -127,20 +122,22 @@ class VRSpace {
         });
     }
 
-    someVirtualMarkersInRaycasterZone(id) {
-        const intersects = raycaster.intersectObjects(
-            planetaryShell.children.filter(mesh => {
-                return mesh.geometry.type === 'BoxGeometry' && mesh.name === id
-            })
-        );
-        
-        return intersects?.length > 0;
+    updateRay(targetCoords) {
+        // const targetCoords = new THREE.Vector2(x, y);
+        raycaster.setFromCamera(targetCoords, camera);
+    }
+
+    cameraMove(position) {
+        const forward = new THREE.Vector3(position.x, position.y, -camera.position.z).applyQuaternion(camera.quaternion);
+        // const lookat = new THREE.Vector3().copy(camera.position).add(forward);
+        camera.lookAt(forward);
     }
 
     selectVirtualMarker(id, weatherHTMLElement) {
         gsap.set(weatherHTMLElement, {
             display: 'none'
         });
+        let activeVRMarker = undefined;
 
         planetaryShell.children
             .filter(mesh => mesh.geometry.type === 'BoxGeometry')
@@ -163,13 +160,18 @@ class VRSpace {
                         // camera.lookAt(new THREE.Vector3(x, y, z))
                     }, 100);
 
+                    activeVRMarker = { ...mesh }
+                    // planetaryShell.lookAt(camera.position);
+
                 } else {
                     if (mesh.material.color.getHex() !== 0x3BF7FF) {
                         mesh.material.color.setHex(0x3BF7FF);
                         mesh.material.opacity = 0.4;
                     }
                 }
-            })
+            });
+
+        return activeVRMarker;
     }
 
     createVirtualMarker(id, lat, lng) {

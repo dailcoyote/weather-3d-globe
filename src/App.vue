@@ -7,8 +7,7 @@ import VRSpace from "./virtuality/VRSpace";
 import {
   createMotionControls,
   animate,
-  printMouseData,
-  setMarkerID
+  startCameraMovement,
 } from "./virtuality/Motion";
 import GeoRadar from "./map/GeoRadar";
 
@@ -57,11 +56,20 @@ function onRelevationItemSelect(id) {
 
 function onVRMarkerFocus(id) {
   if (id && isAlreadyLocationMarked(id)) {
-    const weatherPopupHTMLElement = weatherPopupRef.value;
-    vrSpace.selectVirtualMarker(id, weatherPopupHTMLElement);
     state.activeVRMarkerID = id;
-    setMarkerID(id);
-    printMouseData();
+    const weatherPopupHTMLElement = weatherPopupRef.value;
+    // vrSpace.visibleVirtualMarkerInRaycasterZone(
+    //   vrSpace.selectVirtualMarker(
+    //     state.activeVRMarkerID,
+    //     weatherPopupHTMLElement
+    //   )
+    // );
+    startCameraMovement(
+      vrSpace.selectVirtualMarker(
+        state.activeVRMarkerID,
+        weatherPopupHTMLElement
+      )
+    );
   }
 }
 
