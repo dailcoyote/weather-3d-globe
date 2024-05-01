@@ -127,17 +127,12 @@ class VRSpace {
         raycaster.setFromCamera(targetCoords, camera);
     }
 
-    cameraMove(position) {
-        const forward = new THREE.Vector3(position.x, position.y, -camera.position.z).applyQuaternion(camera.quaternion);
-        // const lookat = new THREE.Vector3().copy(camera.position).add(forward);
-        camera.lookAt(forward);
-    }
-
     selectVirtualMarker(id, weatherHTMLElement) {
         gsap.set(weatherHTMLElement, {
             display: 'none'
         });
         let activeVRMarker = undefined;
+
 
         planetaryShell.children
             .filter(mesh => mesh.geometry.type === 'BoxGeometry')
@@ -145,24 +140,17 @@ class VRSpace {
                 if (mesh.name === id) {
                     mesh.material.opacity = 0.6;
                     mesh.material.color.setHex(0xEE4B2B);
-                    gsap.set(weatherHTMLElement, {
-                        x: (innerWidth - VRScreenSize.width) + (VRScreenSize.width / 10),
-                        y: (VRScreenSize.height) / 5
-                    });
-                    console.log(mesh)
-                    // camera.position.z = 10;
-
-                    setTimeout(() => {
-                        const { x, y, z } = mesh.position;
-                        gsap.set(weatherHTMLElement, {
-                            display: 'block'
-                        });
-                        // camera.lookAt(new THREE.Vector3(x, y, z))
-                    }, 100);
-
+                    
                     activeVRMarker = { ...mesh }
-                    // planetaryShell.lookAt(camera.position);
-
+                    gsap.set(weatherHTMLElement, {
+                        display: 'block'
+                    });
+                    setTimeout(() => {
+                        gsap.set(weatherHTMLElement, {
+                            x: innerWidth - weatherHTMLElement.offsetWidth - 2.5,
+                            y: 2.5
+                        });
+                    }, 50);
                 } else {
                     if (mesh.material.color.getHex() !== 0x3BF7FF) {
                         mesh.material.color.setHex(0x3BF7FF);

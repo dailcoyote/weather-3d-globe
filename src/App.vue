@@ -10,6 +10,8 @@ import {
   startCameraMovement,
 } from "./virtuality/Motion";
 import GeoRadar from "./map/GeoRadar";
+import OpenWeatherMap from "./map/OpenWeatherMap";
+import WeatherForecastCard from "./components/WeatherForecastCard.vue";
 
 const isMobile = (function () {
   const regex =
@@ -33,6 +35,15 @@ const relevanceResultVisible = computed(() => {
 
 library.add(fas);
 
+const utils = {
+  isAlreadyLocationMarked(id) {
+    return state.selectedLocationVector.some((cursor) => cursor.id == id);
+  },
+  getSelectedLocation(id) {
+    return state.selectedLocationVector.find((cursor) => cursor.id === id);
+  },
+};
+
 function setup() {
   const VRContainer = canvasContainerRef.value;
   vrSpace = new VRSpace(VRContainer, isMobile);
@@ -40,36 +51,40 @@ function setup() {
   animate(VRContainer, vrSpace);
 }
 
-function isAlreadyLocationMarked(id) {
-  return state.selectedLocationVector.some((cursor) => cursor.id == id);
-}
-
 function onRelevationItemSelect(id) {
-  const location = state.relevanceLocationVector.find((item) => item.id === id);
-  if (!location?.coord || isAlreadyLocationMarked(id)) {
-    return;
+  const iLocation = state.relevanceLocationVector.find(
+    (item) => item.id === id
+  );
+  if (iLocation && !utils.isAlreadyLocationMarked(id)) {
+    vrSpace.createVirtualMarker(id, iLocation.coord?.lat, iLocation.coord?.lon);
+    state.selectedLocationVector.push({ ...iLocation });
+    searchTermRef.value = "";
   }
-  vrSpace.createVirtualMarker(id, location.coord?.lat, location.coord?.lon);
-  state.selectedLocationVector.push({ ...location });
-  searchTermRef.value = "";
 }
 
-function onVRMarkerFocus(id) {
-  if (id && isAlreadyLocationMarked(id)) {
+async function onVRMarkerFocus(id) {
+  if (id && utils.isAlreadyLocationMarked(id)) {
     state.activeVRMarkerID = id;
     const weatherPopupHTMLElement = weatherPopupRef.value;
-    // vrSpace.visibleVirtualMarkerInRaycasterZone(
-    //   vrSpace.selectVirtualMarker(
-    //     state.activeVRMarkerID,
-    //     weatherPopupHTMLElement
-    //   )
-    // );
-    startCameraMovement(
+    const { position } =
       vrSpace.selectVirtualMarker(
         state.activeVRMarkerID,
         weatherPopupHTMLElement
-      )
-    );
+      ) || {};
+    if (position) {
+      startCameraMovement(position);
+      let { coord } = utils.getSelectedLocation(state.activeVRMarkerID);
+      try {
+        const data = await OpenWeatherMap.fetchForecastWeatherData(
+          coord.lat,
+          coord.lon,
+          "Metric"
+        );
+        console.log(data);
+      } catch (error) {
+        console.log(error);
+      }
+    }
   }
 }
 
@@ -133,7 +148,7 @@ watch(searchTermRef, async (newTerms) => {
             </p>
           </div>
           <div
-            v-if="isAlreadyLocationMarked(item.id)"
+            v-if="utils.isAlreadyLocationMarked(item.id)"
             class="hidden shrink-0 sm:flex sm:flex-col sm:items-end"
           >
             <div class="mt-1 flex items-center gap-x-1.5">
@@ -209,10 +224,6 @@ watch(searchTermRef, async (newTerms) => {
           </div>
         </dl>
       </template>
-
-      <!-- <h3 class="text-white font-exo">
-        CHALLENGES THE STANDARD OF SPACE EXPLORATION
-      </h3> -->
     </div>
     <!-- CANVAS CONTAINER -->
     <div class="w-2/3" ref="canvasContainerRef">
@@ -220,12 +231,10 @@ watch(searchTermRef, async (newTerms) => {
     </div>
     <div
       ref="weatherPopupRef"
-      class="bg-black bg-opacity-50 fixed p-4 py-2 rounded"
+      class="bg-black bg-opacity-20 fixed rounded"
       style="display: none"
     >
-      <h2 class="text-white text-xs">
-        <span>Weather info</span>
-      </h2>
+        <WeatherForecastCard></WeatherForecastCard>
     </div>
   </div>
 </template>

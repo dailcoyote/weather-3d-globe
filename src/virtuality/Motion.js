@@ -17,7 +17,6 @@ const auto = {
 let controls;
 let camera;
 let scene;
-let focusingMarkersQueue = new Set();
 
 function updateFrame(VRContainer, vrSpace) {
     VRContainer.style.cursor = mouse.cursorCrossesWeatherCanvas
@@ -36,20 +35,10 @@ function animate(VRContainer, vrSpace) {
     requestAnimationFrame(animate.bind(this, VRContainer, vrSpace));
 }
 
-function startCameraMovement(target) {
-    // controls.autoRotate = true;
-    printMouseData();
-    let z = target.position.z < 0 ? -8 : 8;
-
-    console.log("target virtual3d marker", target.position)
-    camera.position.set(target.position.x, target.position.y, z);
+function startCameraMovement(position) {
+    console.log("target virtual3d marker", position)
+    camera.position.set(position.x, position.y, position.z < 0 ? -8 : 8);
     camera.lookAt( 0, 0, 0 );
-    console.log("camera position", camera.position)
-}
-
-function stopCameraMovement(target) {
-    controls.autoRotate = false;
-    // focusingMarkersQueue.delete(target);
 }
 
 function createMotionControls(VRContainer, vrSpace, hasMobileDevice) {
