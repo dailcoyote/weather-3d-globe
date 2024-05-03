@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref, watch, reactive, computed } from "vue";
+import { onMounted, ref, watch, reactive, computed, onBeforeMount } from "vue";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { fas } from "@fortawesome/free-solid-svg-icons";
@@ -11,6 +11,7 @@ import {
 } from "./virtuality/Motion";
 import GeoRadar from "./map/GeoRadar";
 import OpenWeatherMap from "./map/OpenWeatherMap";
+import WeatherComposition from "./types/WeatherComposition";
 import WeatherForecastCard from "./components/WeatherForecastCard.vue";
 
 const isMobile = (function () {
@@ -21,12 +22,29 @@ const isMobile = (function () {
 const canvasContainerRef = ref();
 const weatherPopupRef = ref();
 const searchTermRef = ref("");
+const weatherForecastViewDataRef = ref();
 
 let vrSpace = undefined;
+
 const state = reactive({
   relevanceLocationVector: [],
   selectedLocationVector: new Array(),
   activeVRMarkerID: null,
+  weatherForecastViewData: {
+    id: undefined,
+    locationFormatText: "",
+    humidity: -1,
+    windSpeed: -1,
+    pressure: -1,
+    visibility: -1,
+    tempCelsius: -1,
+    tempMaxCelsius: -1,
+    tempMinCelsius: -1,
+    weatherDescription: "",
+    weatherParameterGroup: "",
+  },
+  openWeatherLoadingErrorMsg: "",
+  asyncLoading: false,
 });
 // a computed ref
 const relevanceResultVisible = computed(() => {
@@ -65,6 +83,7 @@ function onRelevationItemSelect(id) {
 async function onVRMarkerFocus(id) {
   if (id && utils.isAlreadyLocationMarked(id)) {
     state.activeVRMarkerID = id;
+    state.openWeatherLoadingErrorMsg = "";
     const weatherPopupHTMLElement = weatherPopupRef.value;
     const { position } =
       vrSpace.selectVirtualMarker(
@@ -72,17 +91,36 @@ async function onVRMarkerFocus(id) {
         weatherPopupHTMLElement
       ) || {};
     if (position) {
+      state.asyncLoading = true;
       startCameraMovement(position);
       let { coord } = utils.getSelectedLocation(state.activeVRMarkerID);
       try {
-        const data = await OpenWeatherMap.fetchForecastWeatherData(
-          coord.lat,
-          coord.lon,
-          "Metric"
-        );
-        console.log(data);
+        const { id, main, name, sys, visibility, weather, wind, timezone, dt } =
+          await OpenWeatherMap.fetchForecastWeatherData(
+            coord.lat,
+            coord.lon,
+            "Metric"
+          );
+        state.weatherForecastViewData = {
+          id,
+          locationFormatText: sys.country + "," + name,
+          humidity: main.humidity,
+          windSpeed: wind.speed,
+          pressure: main.pressure,
+          visibility,
+          tempCelsius: main.temp.toFixed(1),
+          tempMaxCelsius: main.temp_max.toFixed(1),
+          tempMinCelsius: main.temp_min.toFixed(1),
+          weatherDescription: weather[0]?.description,
+          weatherParameterGroup: weather[0]?.main,
+          timezone
+        };
       } catch (error) {
-        console.log(error);
+        state.openWeatherLoadingErrorMsg = error.name
+          ? error.name + error.message
+          : "network error";
+      } finally {
+        state.asyncLoading = false;
       }
     }
   }
@@ -234,7 +272,11 @@ watch(searchTermRef, async (newTerms) => {
       class="bg-black bg-opacity-20 fixed rounded"
       style="display: none"
     >
-        <WeatherForecastCard></WeatherForecastCard>
+      <WeatherForecastCard
+        :weatherForecastViewData="state.weatherForecastViewData"
+        :openWeatherLoadingErrorMsg="state.openWeatherLoadingErrorMsg"
+        :asyncLoading="state.asyncLoading"
+      ></WeatherForecastCard>
     </div>
   </div>
 </template>

@@ -133,12 +133,11 @@ class VRSpace {
         });
         let activeVRMarker = undefined;
 
-
         planetaryShell.children
             .filter(mesh => mesh.geometry.type === 'BoxGeometry')
             .map(mesh => {
                 if (mesh.name === id) {
-                    mesh.material.opacity = 0.6;
+                    mesh.material.opacity = 0.8;
                     mesh.material.color.setHex(0xEE4B2B);
                     
                     activeVRMarker = { ...mesh }
