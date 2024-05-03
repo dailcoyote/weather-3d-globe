@@ -20,6 +20,7 @@ const isMobile = (function () {
   return regex.test(navigator.userAgent);
 })();
 const canvasContainerRef = ref();
+const cameraControlIconRef = ref();
 const weatherPopupRef = ref();
 const searchTermRef = ref("");
 const weatherForecastViewDataRef = ref();
@@ -64,7 +65,8 @@ const utils = {
 
 function setup() {
   const VRContainer = canvasContainerRef.value;
-  vrSpace = new VRSpace(VRContainer, isMobile);
+  const VRCameraControlIcon = cameraControlIconRef.value;
+  vrSpace = new VRSpace(VRContainer, VRCameraControlIcon, isMobile);
   createMotionControls(VRContainer, vrSpace, isMobile);
   animate(VRContainer, vrSpace);
 }
@@ -113,7 +115,7 @@ async function onVRMarkerFocus(id) {
           tempMinCelsius: main.temp_min.toFixed(1),
           weatherDescription: weather[0]?.description,
           weatherParameterGroup: weather[0]?.main,
-          timezone
+          timezone,
         };
       } catch (error) {
         state.openWeatherLoadingErrorMsg = error.name
@@ -145,7 +147,7 @@ watch(searchTermRef, async (newTerms) => {
     <!-- SYSTEM PANEL -->
     <div
       class="w-1/3 flex flex-col py-8 px-10 overflow-auto"
-      style="border-right: 0.76px solid #646cff"
+      style="border-right: 0.4px solid aqua"
     >
       <!-- SEARCH BOX -->
       <div class="row-auto">
@@ -277,6 +279,13 @@ watch(searchTermRef, async (newTerms) => {
         :openWeatherLoadingErrorMsg="state.openWeatherLoadingErrorMsg"
         :asyncLoading="state.asyncLoading"
       ></WeatherForecastCard>
+    </div>
+    <div ref="cameraControlIconRef" class="bg-black bg-opacity-40 fixed rounded p-8" style="display: none">
+      <FontAwesomeIcon
+        :icon="['fas', 'video']"
+        class="fa-3x"
+        style="color: white"
+      />
     </div>
   </div>
 </template>

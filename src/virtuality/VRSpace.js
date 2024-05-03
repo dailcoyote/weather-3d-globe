@@ -36,7 +36,7 @@ const textures = {
 }
 
 class VRSpace {
-    constructor(VRContainer, isSmallScreen) {
+    constructor(VRContainer, VRCameraControlIcon, isSmallScreen) {
         scene = new THREE.Scene();
         camera = new THREE.PerspectiveCamera(
             80,
@@ -84,6 +84,16 @@ class VRSpace {
         );
         scene.add(SceneComponentBuilder.createAtmosphere());
         scene.add(planetaryShell);
+
+        console.log(VRCameraControlIcon)
+
+        gsap.set(VRCameraControlIcon, {
+            display: 'block'
+        });
+        gsap.set(VRCameraControlIcon, {
+            x: innerWidth - VRScreenSize.width,
+            y: 2.5
+        });
     }
 
     getCameraPosition() {
