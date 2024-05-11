@@ -23,9 +23,7 @@ function updateFrame(VRContainer, vrSpace) {
         ? "grab"
         : "default";
 
-    // controls.update();
-    // camera.rotation.y += Math.PI/2;
-
+    controls.update();
     vrSpace.render();
 }
 
@@ -38,7 +36,7 @@ function animate(VRContainer, vrSpace) {
 function startCameraMovement(position) {
     console.log("target virtual3d marker", position)
     camera.position.set(position.x, position.y, position.z < 0 ? -8 : 8);
-    camera.lookAt( 0, 0, 0 );
+    camera.lookAt(0, 0, 0);
 }
 
 function createMotionControls(VRContainer, vrSpace, hasMobileDevice) {
@@ -46,69 +44,6 @@ function createMotionControls(VRContainer, vrSpace, hasMobileDevice) {
     controls = new OrbitControls(vrSpace.getCamera(), vrSpace.getRenderer().domElement);
     controls.update();
     scene = vrSpace;
-
-    /*
-          D E S K T O P   L I S T E N E R S
-    */
-
-    VRContainer.addEventListener("mousedown", (event) => {
-        if (!hasMobileDevice) {
-            let { clientX, clientY } = event;
-            mouse.xPrev = clientX;
-            mouse.yPrev = clientY;
-            mouse.down = true;
-        }
-
-        if (mouse.down && auto.planetRotationEnabled) {
-            auto.planetRotationEnabled = false;
-        }
-
-        // if (!mouse.audioActivated) {
-        //     AudioPlayer.play();
-        //     mouse.audioActivated = !mouse.audioActivated;
-        // }
-    });
-
-    VRContainer.addEventListener("mouseover", () => {
-        mouse.cursorCrossesWeatherCanvas = true;
-    });
-
-    VRContainer.addEventListener("mouseout", () => {
-        mouse.cursorCrossesWeatherCanvas = false;
-    });
-
-    VRContainer.addEventListener("wheel", (event) => {
-        let deltaY = event.deltaY / 1000;
-        let offsetY = vrSpace.getCameraPosition().z + deltaY;
-        console.log("auto camera position", camera.position)
-        if (offsetY >= 6 && offsetY <= 24) {
-            vrSpace.setNewCameraZoom(offsetY);
-        }
-    });
-
-    addEventListener("mousemove", (event) => {
-        mouse.x = (event.clientX / VRContainer.offsetWidth) * 2 - 1;
-        mouse.y = -(event.clientY / VRContainer.offsetHeight) * 2 + 1;
-
-        if (mouse.down) {
-            event.preventDefault();
-            const deltaX = event.clientX - mouse.xPrev;
-            const deltaY = event.clientY - mouse.yPrev;
-
-            vrSpace.animateSmoothPlanet({
-                x: deltaY,
-                y: deltaX
-            });
-
-            mouse.xPrev = event.clientX;
-            mouse.yPrev = event.clientY;
-        }
-    });
-
-    addEventListener("mouseup", (event) => {
-        mouse.down = false;
-    });
-
 }
 
 function printMouseData() {

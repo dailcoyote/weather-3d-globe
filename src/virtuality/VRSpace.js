@@ -85,8 +85,6 @@ class VRSpace {
         scene.add(SceneComponentBuilder.createAtmosphere());
         scene.add(planetaryShell);
 
-        console.log(VRCameraControlIcon)
-
         gsap.set(VRCameraControlIcon, {
             display: 'block'
         });
