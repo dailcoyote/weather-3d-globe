@@ -14,7 +14,7 @@
         </button>
         <div class="mt-5">
           <h2 class="font-bold text-3xl leading-none pb-1">{{ weekDay }}</h2>
-          <h3 class="leading-none pb-2 pl-1">{{ dateTitle }}</h3>
+          <h3 class="leading-none pb-2 pl-1">{{ dateTitleFmt }}</h3>
         </div>
         <template
           v-if="!props.asyncLoading && !openWeatherLoadingErrorMsg.length"
@@ -24,7 +24,7 @@
               {{
                 props.weatherForecastViewData.locationFormatText +
                 ",  " +
-                localTime
+                localTimeFmt
               }}
             </p>
           </div>
@@ -133,12 +133,16 @@ const props = defineProps({
   asyncLoading: Boolean,
 });
 
+const weatherIcon = computed(() => {
+  return props.weatherForecastViewData.weatherAsset
+})
+
 const weekDay = computed(() => {
   return new Intl.DateTimeFormat("en-US", { weekday: "long" }).format(
     new Date()
   );
 });
-const dateTitle = computed(() => {
+const dateTitleFmt = computed(() => {
   return new Intl.DateTimeFormat("en-GB", {
     day: "numeric",
     month: "long",
@@ -146,7 +150,7 @@ const dateTitle = computed(() => {
   }).format(new Date());
 });
 
-const localTime = computed(() => {
+const localTimeFmt = computed(() => {
   const today = new Date();
   const localDateTime = new Date(
     today.getUTCFullYear(),
@@ -171,16 +175,6 @@ const localTime = computed(() => {
   return localHoursFmt + ":" + localMinutesFmt + " (local time)";
 });
 
-const weatherIcon = computed(() => {
-  const g =
-    WeatherComposition.WeatherConditions[
-      props?.weatherForecastViewData.weatherParameterGroup
-    ];
-  if (g) {
-    return g.findWeatherAsset(props.weatherForecastViewData.id);
-  }
-  return "../assets/indicators/cloud.png";
-});
 </script>
 
 <style scoped>

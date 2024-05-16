@@ -67,6 +67,13 @@ const utils = {
   getSelectedLocation(id) {
     return state.selectedLocationVector.find((cursor) => cursor.id === id);
   },
+  computeWeatherAsset(id, weatherParameterGroup) {
+    const g = WeatherComposition.WeatherConditions[weatherParameterGroup];
+    if (g) {
+      return g.findWeatherAsset(id);
+    }
+    return "../assets/indicators/cloud.png";
+  },
 };
 
 function setup() {
@@ -109,23 +116,32 @@ async function onVRMarkerFocus(id) {
             coord.lon,
             "Metric"
           );
+        const locationFormatText = sys.country + "," + name,
+          humidity = main.humidity,
+          windSpeed = main.speed,
+          pressure = main.pressure,
+          tempCelsius = main.temp.toFixed(0),
+          tempMaxCelsius = main.temp_max.toFixed(1),
+          tempMinCelsius = main.temp_min.toFixed(1),
+          weatherAsset = utils.computeWeatherAsset(id, weather[0]?.main),
+          weatherDescription = weather[0]?.description;
         state.weatherForecastViewData = {
-          id,
-          locationFormatText: sys.country + "," + name,
-          humidity: main.humidity,
-          windSpeed: wind.speed,
-          pressure: main.pressure,
+          locationFormatText,
+          humidity,
+          windSpeed,
+          pressure,
           visibility,
-          tempCelsius: main.temp.toFixed(0),
-          tempMaxCelsius: main.temp_max.toFixed(1),
-          tempMinCelsius: main.temp_min.toFixed(1),
-          weatherDescription: weather[0]?.description,
-          weatherParameterGroup: weather[0]?.main,
+          tempCelsius,
+          tempMaxCelsius,
+          tempMinCelsius,
+          weatherAsset,
+          weatherDescription,
           timezone,
         };
-        utils.partialWeatherUpdate(id, {
-          tempCelsius: state.weatherForecastViewData.tempCelsius,
-          weatherDescription: state.weatherForecastViewData.weatherDescription,
+        utils.partialWeatherUpdate(state.activeVRMarkerID, {
+          tempCelsius,
+          weatherAsset,
+          weatherDescription,
         });
       } catch (error) {
         state.openWeatherLoadingErrorMsg = error.name
@@ -157,7 +173,7 @@ watch(searchTermRef, async (newTerms) => {
     <!-- SYSTEM PANEL -->
     <div
       class="w-1/3 flex flex-col py-8 px-10 overflow-auto"
-      style="border-right: 0.4px solid aqua"
+      style="border-right: 0.25px solid cyan"
     >
       <!-- SEARCH BOX -->
       <div class="row-auto">
@@ -224,11 +240,10 @@ watch(searchTermRef, async (newTerms) => {
             class="flex justify-between gap-x-6 py-4"
             @click="onVRMarkerFocus(location.id)"
           >
-            <div class="flex min-w-0 gap-x-4">
+            <div class="flex min-w-0 gap-x-4 pt-2">
               <FontAwesomeIcon
                 icon="fa-solid fa-location-crosshairs"
-                class="fa-2x"
-                style="color: aqua"
+                :class="['fa-2x', state.activeVRMarkerID == location.id ? 'text-rose-600' : 'text-cyan-600' ]"
               />
             </div>
             <div class="min-w-0 flex-auto px-4">
@@ -242,17 +257,25 @@ watch(searchTermRef, async (newTerms) => {
                 Geo coordinates
                 {{ location.coord?.lat }}° / {{ location.coord?.lon }}°
               </p>
-              <template v-if="location.tempCelsius">
+              <template
+                v-if="location.tempCelsius && location.weatherDescription"
+              >
                 <p class="mt-1 text-xs leading-5 text-gray-500">
                   {{ location.tempCelsius }}ºC {{ location.weatherDescription }}
                 </p>
               </template>
             </div>
-            <div
-              v-if="state.activeVRMarkerID == location.id"
-              class="hidden shrink-0 sm:flex sm:flex-col sm:items-end"
-            >
-              <div class="mt-1 flex items-center gap-x-1.5">
+            <div class="hidden shrink-0 sm:flex sm:flex-col sm:items-end">
+              <img
+                v-if="location.weatherAsset"
+                :src="location.weatherAsset"
+                width="48"
+                height="48"
+              />
+              <div
+                class="mt-1 flex items-center gap-x-1.5"
+                v-if="state.activeVRMarkerID == location.id"
+              >
                 <div class="flex-none rounded-full bg-rose-600/20 p-1">
                   <div class="h-1.5 w-1.5 rounded-full bg-rose-600" />
                 </div>
