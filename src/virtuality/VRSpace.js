@@ -136,9 +136,6 @@ class VRSpace {
     }
 
     selectVirtualMarker(id, weatherHTMLElement) {
-        gsap.set(weatherHTMLElement, {
-            display: 'none'
-        });
         let activeVRMarker = undefined;
 
         planetaryShell.children
@@ -152,12 +149,10 @@ class VRSpace {
                     gsap.set(weatherHTMLElement, {
                         display: 'block'
                     });
-                    setTimeout(() => {
-                        gsap.set(weatherHTMLElement, {
-                            x: innerWidth - weatherHTMLElement.offsetWidth - 2.5,
-                            y: 2.5
-                        });
-                    }, 50);
+                    gsap.set(weatherHTMLElement, {
+                        x: innerWidth - weatherHTMLElement.offsetWidth - 2.5,
+                        y: 2.5
+                    });
                 } else {
                     if (mesh.material.color.getHex() !== 0x3BF7FF) {
                         mesh.material.color.setHex(0x3BF7FF);
