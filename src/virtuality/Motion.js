@@ -7,7 +7,8 @@ const mouse = {
     down: false,
     xPrev: undefined,
     yPrev: undefined,
-    audioActivated: false
+    audioActivated: false,
+    cursorCrossesWeatherCanvas: false
 };
 
 const auto = {
@@ -39,11 +40,19 @@ function startCameraMovement(position) {
     camera.lookAt(0, 0, 0);
 }
 
-function createMotionControls(VRContainer, vrSpace, hasMobileDevice) {
+function createMotionControls(VRContainer, vrSpace) {
 
     controls = new OrbitControls(vrSpace.getCamera(), vrSpace.getRenderer().domElement);
     controls.update();
     scene = vrSpace;
+
+    VRContainer.addEventListener("mouseover", () => {
+        mouse.cursorCrossesWeatherCanvas = true;
+    });
+
+    VRContainer.addEventListener("mouseout", () => {
+        mouse.cursorCrossesWeatherCanvas = false;
+    });
 }
 
 function printMouseData() {
