@@ -55,6 +55,12 @@ const relevanceResultVisible = computed(() => {
 library.add(fas);
 
 const utils = {
+  partialWeatherUpdate(id, fragment) {
+    const mutatedVector = state.selectedLocationVector.map((cursor) =>
+      cursor.id == id ? { ...cursor, ...fragment } : cursor
+    );
+    state.selectedLocationVector = [...mutatedVector];
+  },
   isAlreadyLocationMarked(id) {
     return state.selectedLocationVector.some((cursor) => cursor.id == id);
   },
@@ -110,13 +116,17 @@ async function onVRMarkerFocus(id) {
           windSpeed: wind.speed,
           pressure: main.pressure,
           visibility,
-          tempCelsius: main.temp.toFixed(1),
+          tempCelsius: main.temp.toFixed(0),
           tempMaxCelsius: main.temp_max.toFixed(1),
           tempMinCelsius: main.temp_min.toFixed(1),
           weatherDescription: weather[0]?.description,
           weatherParameterGroup: weather[0]?.main,
           timezone,
         };
+        utils.partialWeatherUpdate(id, {
+          tempCelsius: state.weatherForecastViewData.tempCelsius,
+          weatherDescription: state.weatherForecastViewData.weatherDescription,
+        });
       } catch (error) {
         state.openWeatherLoadingErrorMsg = error.name
           ? error.name + error.message
@@ -232,6 +242,11 @@ watch(searchTermRef, async (newTerms) => {
                 Geo coordinates
                 {{ location.coord?.lat }}° / {{ location.coord?.lon }}°
               </p>
+              <template v-if="location.tempCelsius">
+                <p class="mt-1 text-xs leading-5 text-gray-500">
+                  {{ location.tempCelsius }}ºC {{ location.weatherDescription }}
+                </p>
+              </template>
             </div>
             <div
               v-if="state.activeVRMarkerID == location.id"
@@ -280,7 +295,11 @@ watch(searchTermRef, async (newTerms) => {
         :asyncLoading="state.asyncLoading"
       ></WeatherForecastCard>
     </div>
-    <div ref="cameraControlIconRef" class="bg-black bg-opacity-40 fixed rounded p-8" style="display: none">
+    <div
+      ref="cameraControlIconRef"
+      class="bg-black bg-opacity-40 fixed rounded p-8"
+      style="display: none"
+    >
       <FontAwesomeIcon
         :icon="['fas', 'video']"
         class="fa-3x"

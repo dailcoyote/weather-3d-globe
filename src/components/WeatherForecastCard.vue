@@ -21,7 +21,11 @@
         >
           <div class="mt-5 mb-10">
             <p class="flex aling-center opacity-75">
-              {{ props.weatherForecastViewData.locationFormatText + ",  " + localTime }}
+              {{
+                props.weatherForecastViewData.locationFormatText +
+                ",  " +
+                localTime
+              }}
             </p>
           </div>
           <div class="space-y-2">
@@ -152,8 +156,19 @@ const localTime = computed(() => {
     today.getUTCMinutes(),
     today.getUTCSeconds()
   );
-  localDateTime.setHours(localDateTime.getHours() + (props.weatherForecastViewData.timezone / 3600))
-  return localDateTime.getHours() + ":" + localDateTime.getMinutes() + " (local time)";
+  localDateTime.setHours(
+    localDateTime.getHours() + props.weatherForecastViewData.timezone / 3600
+  );
+  let localHoursFmt =
+    localDateTime.getHours() < 10
+      ? "0".concat(localDateTime.getHours())
+      : localDateTime.getHours();
+  let localMinutesFmt =
+    localDateTime.getMinutes() < 10
+      ? "0".concat(localDateTime.getMinutes())
+      : localDateTime.getMinutes();
+
+  return localHoursFmt + ":" + localMinutesFmt + " (local time)";
 });
 
 const weatherIcon = computed(() => {
