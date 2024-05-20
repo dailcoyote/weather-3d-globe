@@ -327,7 +327,7 @@ watch(searchTermRef, async (newTerms) => {
     </div>
     <div
       ref="cameraControlIconRef"
-      class="bg-black bg-opacity-40 fixed rounded p-8"
+      class="bg-black bg-opacity-40 fixed rounded p-7"
       style="display: none"
     >
       <FontAwesomeIcon
