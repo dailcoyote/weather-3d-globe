@@ -44,9 +44,11 @@ const state = reactive({
     weatherDescription: "",
     weatherParameterGroup: "",
   },
-  openWeatherLoadingErrorMsg: "",
-  asyncLoading: false,
-  smallScreen: isMobile && innerWidth < 1024
+  openWeatherInterface: {
+    errorState: "",
+    asyncLoading: false,
+  },
+  smallScreen: isMobile && innerWidth < 1024,
 });
 // a computed ref
 const relevanceResultVisible = computed(() => {
@@ -77,7 +79,7 @@ const utils = {
   },
 };
 
-function setup() {
+function VRSetup() {
   const VRContainer = canvasContainerRef.value;
   const VRCameraControlIcon = cameraControlIconRef.value;
   vrSpace = new VRSpace(VRContainer, VRCameraControlIcon, isMobile);
@@ -99,7 +101,7 @@ function onRelevationItemSelect(id) {
 async function onVRMarkerFocus(id) {
   if (id && utils.isAlreadyLocationMarked(id)) {
     state.activeVRMarkerID = id;
-    state.openWeatherLoadingErrorMsg = "";
+    state.openWeatherInterface.errorState = "";
     const weatherPopupHTMLElement = weatherPopupRef.value;
     const { position } =
       vrSpace.selectVirtualMarker(
@@ -107,9 +109,9 @@ async function onVRMarkerFocus(id) {
         weatherPopupHTMLElement
       ) || {};
     if (position) {
-      state.asyncLoading = true;
       startCameraMovement(position);
       let { coord } = utils.getSelectedLocation(state.activeVRMarkerID);
+      state.openWeatherInterface.asyncLoading = true;
       try {
         const { id, main, name, sys, visibility, weather, wind, timezone, dt } =
           await OpenWeatherMap.fetchForecastWeatherData(
@@ -145,18 +147,18 @@ async function onVRMarkerFocus(id) {
           weatherDescription,
         });
       } catch (error) {
-        state.openWeatherLoadingErrorMsg = error.name
+        state.openWeatherInterface.errorState = error.name
           ? error.name + error.message
           : "network error";
       } finally {
-        state.asyncLoading = false;
+        state.openWeatherInterface.asyncLoading = false;
       }
     }
   }
 }
 
 onMounted(() => {
-  setup();
+  VRSetup();
 });
 
 watch(searchTermRef, async (newTerms) => {
@@ -268,7 +270,8 @@ watch(searchTermRef, async (newTerms) => {
                 v-if="location.tempCelsius && location.weatherDescription"
               >
                 <p class="mt-1 text-xs leading-5 text-gray-500">
-                  {{ location.tempCelsius }}ºC {{ location.weatherDescription }}
+                  {{ location.tempCelsius }}ºC
+                  {{ location.weatherDescription }}
                 </p>
               </template>
             </div>
@@ -293,11 +296,11 @@ watch(searchTermRef, async (newTerms) => {
         </ul>
         <dl
           v-else
-          class="mt-20 mx-10 justify-space-between max-w-xl space-y-8 text-base leading-7 text-gray-600 lg:max-w-none"
+          class="m-20 justify-space-between max-w-xl space-y-8 text-base leading-7 text-gray-600 lg:max-w-none"
         >
           <div class="flex items-center gap-x-6">
             <FontAwesomeIcon
-              icon="fa-solid fa-globe"
+              icon="fa-solid fa-earth-oceania"
               class="fa-3x"
               style="color: #3c5b6f"
             />
@@ -311,7 +314,10 @@ watch(searchTermRef, async (newTerms) => {
       </template>
     </div>
     <!-- CANVAS CONTAINER -->
-    <div :class="state.smallScreen ? 'sm:w-full' : 'w-2/3'" ref="canvasContainerRef">
+    <div
+      :class="state.smallScreen ? 'sm:w-full' : 'w-2/3'"
+      ref="canvasContainerRef"
+    >
       <canvas></canvas>
     </div>
     <div
@@ -321,8 +327,8 @@ watch(searchTermRef, async (newTerms) => {
     >
       <WeatherForecastCard
         :weatherForecastViewData="state.weatherForecastViewData"
-        :openWeatherLoadingErrorMsg="state.openWeatherLoadingErrorMsg"
-        :asyncLoading="state.asyncLoading"
+        :openWeatherLoadingErrorMsg="state.openWeatherInterface.errorState"
+        :asyncLoading="state.openWeatherInterface.asyncLoading"
       ></WeatherForecastCard>
     </div>
     <div

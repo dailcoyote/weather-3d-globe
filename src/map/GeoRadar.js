@@ -1,18 +1,17 @@
-import Geodata from "./city.list.json";
+import GeoDataJSON from "./city.list.json";
 
 class Dictionary {
     constructor() {
         this._dictionaryMap = new Map();
-        this.createABCIndexDictionary();
     }
     createABCIndexDictionary() {
         geoloop:
-        for (let index = 0; index < Geodata.length; index++) {
+        for (let index = 0; index < GeoDataJSON.length; index++) {
             let record,
                 abcIndexVector,
                 abcSize,
                 dictionaryKey;
-            record = Geodata[index];
+            record = GeoDataJSON[index];
             dictionaryKey = record.name.charAt(0);
 
             if (!this._dictionaryMap.has(dictionaryKey)) {
@@ -84,6 +83,7 @@ class Dictionary {
 class GeoRadar {
     constructor() {
         this._dictionary = new Dictionary();
+        this._dictionary.createABCIndexDictionary();
     }
     search() {
         return this._dictionary.getSuggestions.apply(this._dictionary, arguments);
