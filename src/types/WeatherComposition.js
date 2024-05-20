@@ -1,37 +1,20 @@
-// import cloud from "../assets/indicators/cloud.png";
-// import clouds from "../assets/indicators/clouds.png";
-// import cloudLightning from "../assets/indicators/cloud_lightning.png";
-// import heavyRain from "../assets/indicators/heavy_rain.png";
-// import lightRain from "../assets/indicators/light_rain.png";
-// import lightSnow from "../assets/indicators/light_snow.png";
-// import partlyCloudyDay from "../assets/indicators/partly_cloudy_day.png";
-// import rainCloud from "../assets/indicators/rain_cloud.png";
-// import rainCloudLow from "../assets/indicators/rain_cloud_low.png";
-// import rain from "../assets/indicators/rain.png";
-// import sleet from "../assets/indicators/sleet.png";
-// import snow from "../assets/indicators/snow.png";
-// import snowStorm from "../assets/indicators/snow_storm.png";
-// import stormyWeather from "../assets/indicators/stormy_weather.png";
-// import sun from "../assets/indicators/sun.png";
-// import sunOriginal from "../assets/indicators/sun_original.png";
-
 class WeatherIcons {
-    static Cloud = "../assets/indicators/cloud.png";
-    static Clouds = "../assets/indicators/clouds.png";
-    static CloudLightning = "../assets/indicators/cloud_lightning.png";
-    static HeavyRain = "../assets/indicators/heavy_rain.png";
-    static LightRain = "../assets/indicators/light_rain.png";
+    static Cloud = "./indicators/cloud.png";
+    static Clouds = "./indicators/clouds.png";
+    static CloudLightning = "./indicators/cloud_lightning.png";
+    static HeavyRain = "./indicators/heavy_rain.png";
+    static LightRain = "./indicators/light_rain.png";
     static LightSnow = "./assets/indicators/light_snow.png";
-    static PartlyCloudyDay = "../assets/indicators/partly_cloudy_day.png";
+    static PartlyCloudyDay = "./indicators/partly_cloudy_day.png";
     static RainCloud = "./assets/indicators/rain_cloud.png";
-    static RainCloudLow = "../assets/indicators/rain_cloud_low.png";
-    static Rain = "../assets/indicators/rain.png";
-    static Sleet = "../assets/indicators/sleet.png";
-    static Snow = "../assets/indicators/snow.png";
-    static SnowStorm = "../assets/indicators/snow_storm.png";
-    static StormyWeather = "../assets/indicators/stormy_weather.png";
-    static Sun = "../assets/indicators/sun.png";
-    static SunOriginal = "../assets/indicators/sun_original.png";
+    static RainCloudLow = "./indicators/rain_cloud_low.png";
+    static Rain = "./indicators/rain.png";
+    static Sleet = "./indicators/sleet.png";
+    static Snow = "./indicators/snow.png";
+    static SnowStorm = "./indicators/snow_storm.png";
+    static StormyWeather = "./indicators/stormy_weather.png";
+    static Sun = "./indicators/sun.png";
+    static SunOriginal = "./indicators/sun_original.png";
 }
 
 class WeatherConditions {

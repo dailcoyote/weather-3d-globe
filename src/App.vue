@@ -75,7 +75,7 @@ const utils = {
     if (g) {
       return g.findWeatherAsset(id);
     }
-    return "../assets/indicators/cloud.png";
+    return "./indicators/cloud.png";
   },
 };
 
