@@ -46,6 +46,7 @@ const state = reactive({
   },
   openWeatherLoadingErrorMsg: "",
   asyncLoading: false,
+  smallScreen: isMobile && innerWidth < 1024
 });
 // a computed ref
 const relevanceResultVisible = computed(() => {
@@ -172,6 +173,7 @@ watch(searchTermRef, async (newTerms) => {
   <div class="flex h-screen bg-black">
     <!-- SYSTEM PANEL -->
     <div
+      v-if="!isMobile"
       class="w-1/3 flex flex-col py-8 px-10 overflow-auto"
       style="border-right: 0.25px solid cyan"
     >
@@ -243,7 +245,12 @@ watch(searchTermRef, async (newTerms) => {
             <div class="flex min-w-0 gap-x-4 pt-2">
               <FontAwesomeIcon
                 icon="fa-solid fa-location-crosshairs"
-                :class="['fa-2x', state.activeVRMarkerID == location.id ? 'text-rose-600' : 'text-cyan-600' ]"
+                :class="[
+                  'fa-2x',
+                  state.activeVRMarkerID == location.id
+                    ? 'text-rose-600'
+                    : 'text-cyan-600',
+                ]"
               />
             </div>
             <div class="min-w-0 flex-auto px-4">
@@ -304,7 +311,7 @@ watch(searchTermRef, async (newTerms) => {
       </template>
     </div>
     <!-- CANVAS CONTAINER -->
-    <div class="w-2/3" ref="canvasContainerRef">
+    <div :class="state.smallScreen ? 'sm:w-full' : 'w-2/3'" ref="canvasContainerRef">
       <canvas></canvas>
     </div>
     <div
