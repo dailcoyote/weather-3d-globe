@@ -1,5 +1,5 @@
 # Weather 3D globe
-3D shading technologies for visualizing the universe and showing live weather forecasts.
+3D shading technologies for visualizing the universe and showing live weather forecasts. NASA images were used as textures.
 [Preview. Click me](http://weather3d.online)
 > [!NOTE]
 > Tech stack: Javascript, GLSL shaders, Three.js
