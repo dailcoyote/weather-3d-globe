@@ -4,6 +4,7 @@
 <br/>
 
 <img src="./public/weather3d__screenshot_Shanghai.png" width="60%" height="60%" />
+<img src="./public/weather3d__screenshot__Australia.png" width="60%" height="60%" />
 <br/>
 
 > [!NOTE]
@@ -14,7 +15,10 @@ Interactive weather radar allows you to track precipitation in real time, to sel
 <img src="./public/weather3d__screenshot__search.png" width="60%" height="60%" />
 
 ## Camera controls
-Using Orbit control camera from three.js lib
+Using Orbit control camera from three.js lib [!]
+
+Camera control is implemented using the OrbitControl functionality.
+Camera scaling and rotation operations are automatically available.
 <br/>
 
 ## Controlling the globe using motion
