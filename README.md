@@ -1,11 +1,17 @@
 # Weather 3D globe
 3D shading technologies for visualizing the universe and showing live weather forecasts. NASA images were used as textures.
 [Preview. Click me](http://weather3d.online)
+<img src="./public/weather3d__screenshot_Shanghai.png" width="60%" height="60%" />
+
 > [!NOTE]
 > Tech stack: Javascript, GLSL shaders, Three.js
 
-## Zoom camera controls
-<img src="https://lordicon.com/icons/wired/flat/1318-computer-mouse-mouse-scrolling.gif" width="30%" height="30%"/>
+Interactive weather radar allows you to track precipitation in real time, to select the desired location, you should type in the search box (left panel)
+
+<img src="./public/weather3d__screenshot__search.png" width="60%" height="60%" />
+
+## Camera controls
+Using Orbit control camera from three.js lib
 
 ## Controlling the globe using motion
 ### Capturing a 3D object
@@ -14,6 +20,7 @@
 ### Rotate a 3D object
 <img src="https://www.capsnlock.com/cdn/shop/articles/HandMovingMouse.gif?v=1669425222" width="30%" height="30%"/>
 
-## Audio
+## Audio (For Future release)
 <img src="https://assets.iflscience.com/assets/articleNo/69612/aImg/68967/sound-in-space-o.webp" width="30%" height="30%" />
-When you click on a scene, a background sound is played. Autoplay enabled.
+
+### Background music playback
